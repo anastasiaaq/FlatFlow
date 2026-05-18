@@ -13,6 +13,7 @@ Global rules that apply across the application:
 - A user can belong to **at most one household** at a time.
 - All members of a household have **equal permissions** over household data (chores, issues, rules and the household itself).
 - Deleting the **last member** of a household deletes the household and all its data.
+- When a member leaves the household, content and actions they previously authored (issues, rules, chores, completion records) **remain attributed to them**, with their name shown as **"[former member] Name"** wherever they appear.
 
 ---
 
@@ -154,7 +155,7 @@ Global rules that apply across the application:
 - After leaving, the user no longer sees this household's data and other members see the updated member list.
 - **Last member leaving:** per System Constraints, the household and all its data (chores, issues, rules) are deleted; the user is warned about this before confirming.
 - **Chores** assigned to the leaving member become **Unassigned** (see US-3.2).
-- **Issues and rules** authored by a person who is no longer in the household are displayed to remaining members with the author label **"[former member] Name"**, so it stays clear who originally created them.
+- The leaving member's prior authorship (issues, rules, chore creations, completion records) is preserved per System Constraints — they appear as **"[former member] Name"** to remaining members.
 
 ---
 
