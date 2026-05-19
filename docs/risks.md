@@ -43,8 +43,8 @@ Rendering chores and multi-day duties inside a calendar UI may become more techn
 
 - Use an existing calendar library instead of building the calendar from scratch.
 - Implement a simplified month-only calendar for the MVP.
-- Build a list-based chore and duty view before implementing the calendar UI.
-- Treat advanced calendar functionality as optional if development falls behind schedule.
+- Build a list-based chore and duty view before implementing the calendar UI, so the core scheduling experience is functional even before the calendar UI is ready.
+- The basic month-grid calendar (US-3.6 core acceptance criteria — month view, Task chips, Duty bars, today highlight, month navigation) is mandatory for MVP. Only enhancements beyond the core (e.g., richer visual styling, hover previews, drag interactions) are optional if development falls behind schedule.
 - Prioritize functional scheduling over advanced visual polish.
 
 ---

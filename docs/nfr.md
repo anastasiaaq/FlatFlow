@@ -108,29 +108,41 @@
 
 ## 3. MVP Priorities
 
-### High Priority
+User Stories are sorted into four categories per the project's prioritization method: features that are essential (Critical), valuable but not minimum (Important), nice-to-have (Desirable), and consciously rejected (Deferred).
+
+### Критично (Critical — MVP must-ship)
 
 These features are essential for the MVP release:
 
-- User authentication
-- Household creation and joining
-- Chore management
-- Chore calendar
-- Issue tracker
-- House rules
+- Authentication: US-1.1 (register), US-1.2 (login), US-1.3 (logout)
+- Household: US-2.1 (create), US-2.2 (view invite code), US-2.3 (join), US-2.4 (view members), US-2.5 (leave)
+- Chores: US-3.1 (create), US-3.2 (assign), US-3.3 (set dates), US-3.4 (mark completed), US-3.5 (view list), US-3.7 (edit/delete)
+- Chore calendar: US-3.6
+- Issues: US-4.1 (create), US-4.2 (view list), US-4.3 (change status), US-4.4 (edit/delete own)
+- House rules: US-5.1 (add), US-5.2 (view), US-5.3 (edit/delete)
 
-### Medium Priority
+### Важливо (Important — ship if Critical is on track)
 
-These features are useful but can be simplified if time is limited:
+Significant value, but not part of the absolute minimum. Implemented once Critical is confirmed achievable within the timeline.
 
-- Advanced filtering
-- Calendar UI polish
+- US-1.4 (view own profile)
+- US-1.5 (edit display name)
+- US-3.8 (filter chores by assignee and status)
 
-### Low Priority / Post-MVP
+### Бажано (Desirable — only if time remains)
 
-These features are excluded from the MVP:
+Nice additions with minor impact on core functionality.
 
-- Anonymous issue reporting
-- Rule voting
-- Shared expense tracking
-- Native mobile application
+- US-4.5 (filter issues by status)
+
+### Відкладено (Deferred — consciously rejected for this practice)
+
+Requirements that were considered and intentionally excluded from the 6-week scope, with reasoning recorded to prevent scope creep:
+
+- Karma / gamification — outside MVP value proposition; core chore-completion tracking already covers accountability
+- Anonymous issue reporting — adds permission complexity for marginal value at this scale
+- Voting on rules — requires notification and consensus-UI patterns that are out of scope
+- Shared expense tracking — separate domain that would constitute a full epic on its own
+- Push and email notifications — requires email/push infrastructure (SMTP, FCM/APNS)
+- Native mobile application — responsive web interface (see NFR-4) covers MVP mobile needs
+- Password recovery / "forgot password" flow — requires email infrastructure (also noted at the end of user-stories.md as a known MVP limitation)
