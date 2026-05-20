@@ -41,6 +41,7 @@ A task is considered done when **all** of the following are true:
 - Code is written and implements every acceptance criterion from the linked issue
 - The change has been reviewed and approved by at least one other team member (the reviewer reads the diff and, for non-trivial changes, pulls the branch to verify the affected flow)
 - The reviewer has manually exercised each acceptance criterion and confirmed it passes; no console or backend errors observed
+- Where automated tests exist for the affected area, they pass locally before the PR is opened
 - Documentation is updated if user-facing behavior or setup steps have changed
 - The change is merged into `main` via PR
 
