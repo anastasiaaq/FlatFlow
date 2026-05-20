@@ -32,7 +32,7 @@ The project is in the documentation and planning phase. Implementation has not y
 - **Branching Strategy:** GitHub Flow. `main` is always stable and updated only via PRs. Branches are deleted after merge.
 - **Branch Naming:** `type/#<issue-number>-short-description` (e.g., `docs/#3-teamcharter-setup`).
 - **Commit Conventions:** `<type>(#<issue-number>): short message` (e.g., `docs(#3): add TeamCharter.md`).
-- **Code Review:** each PR requires at least one approval.
+- **Code Review:** each PR requires at least one approval. Automated review is done by [CodeRabbit](https://www.coderabbit.ai/).
 
 ## 5. Definition of Done
 
