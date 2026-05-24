@@ -38,6 +38,28 @@ See [docs/user-stories.md](docs/user-stories.md) for the full breakdown.
 | Containerization | Docker & Docker Compose |
 | Deployment | AWS EC2 |
 
+## Setup
+
+The backend Django application lives in `src/backend`.
+
+### Environment
+
+Create a local environment file from the example:
+
+```bash
+cd src/backend
+cp .env.example .env
+```
+
+### Run With Docker Compose
+
+```bash
+cd src
+docker compose up --build -d
+docker compose exec backend python manage.py migrate
+curl http://127.0.0.1:8000/health/
+```
+
 ## Documentation
 
 - [Team Charter](TeamCharter.md) — roles, workflow, and our Definition of Done
