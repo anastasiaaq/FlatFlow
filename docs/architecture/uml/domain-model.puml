@@ -1,0 +1,151 @@
+@startuml domain-model
+title FlatFlow — Data Model (logical / ER)
+left to right direction
+
+' ── Styling (kept intentionally light) ───────────────────────────────
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam nodesep 48
+skinparam ranksep 90
+skinparam defaultFontName "Segoe UI"
+skinparam class {
+  FontStyle bold
+  AttributeFontStyle plain
+  BorderColor #3C6E91
+}
+skinparam ArrowColor #6B7B8C
+skinparam ArrowThickness 1.0
+
+' ── Identity & membership (blue) ─────────────────────────────────────
+entity User #E8F0FE {
+  id <<PK>>
+  --
+  email : string [1] <<unique>>
+  display_name : string [1]
+  password_hash : string [1]
+  date_joined : datetime [1]
+}
+
+entity Household #E8F0FE {
+  id <<PK>>
+  --
+  name : string [1]
+  invite_code : string [1] <<unique>>
+  created_at : datetime [1]
+  created_by [1] <<FK>>
+}
+
+entity Membership #E8F0FE {
+  id <<PK>>
+  --
+  user_id [1] <<FK>> <<unique>>
+  household_id [1] <<FK>>
+  joined_at : datetime [1]
+}
+
+' ── Household content (amber) ────────────────────────────────────────
+entity Chore #FFF8E7 {
+  id <<PK>>
+  --
+  household_id [1] <<FK>>
+  type : ChoreType [1]
+  title : string [1]
+  description : text [0..1]
+  status : ChoreStatus [1]
+  created_at : datetime [1]
+  updated_at : datetime [1]
+  completed_at : datetime [0..1]
+  created_by [1] <<FK>>
+  assignee [0..1] <<FK>>
+  completed_by [0..1] <<FK>>
+}
+
+entity Task #FFF8E7 {
+  due_date : date [0..1]
+}
+
+entity Duty #FFF8E7 {
+  start_date : date [1]
+  end_date : date [1]
+}
+
+entity Issue #FFF8E7 {
+  id <<PK>>
+  --
+  household_id [1] <<FK>>
+  title : string [1]
+  description : text [1]
+  status : IssueStatus [1]
+  created_at : datetime [1]
+  updated_at : datetime [1]
+  author [1] <<FK>>
+}
+
+entity Rule #FFF8E7 {
+  id <<PK>>
+  --
+  household_id [1] <<FK>>
+  text : string [1]
+  created_at : datetime [1]
+  last_modified_at : datetime [1]
+  author [1] <<FK>>
+  last_modified_by [0..1] <<FK>>
+}
+
+' ── Value domains / enums (grey) ─────────────────────────────────────
+enum ChoreType #F2F3F5 {
+  TASK
+  DUTY
+}
+enum ChoreStatus #F2F3F5 {
+  ACTIVE
+  COMPLETED
+}
+enum IssueStatus #F2F3F5 {
+  OPEN
+  RESOLVED
+}
+
+' ── Subtypes — one physical table (single-table inheritance) ─────────
+Chore <|-- Task
+Chore <|-- Duty
+
+' ── Attribute value domains (anchors the enums near their entity) ────
+Chore .[#A0A0A0].> ChoreType
+Chore .[#A0A0A0].> ChoreStatus
+Issue .[#A0A0A0].> IssueStatus
+
+' ── Relationships (crow's-foot) ──────────────────────────────────────
+User      ||--o| Membership : has
+Household ||--|{ Membership : includes
+Household ||--o{ Chore  : owns
+Household ||--o{ Issue  : owns
+Household ||--o{ Rule   : owns
+
+User ||--o{ Household : creates
+User ||--o{ Chore : created_by
+User |o--o{ Chore : assignee
+User |o--o{ Chore : completed_by
+User ||--o{ Issue : author
+User ||--o{ Rule  : author
+User |o--o{ Rule  : last_modified_by
+
+' ── Notes: floating legend (derived attributes + integrity rules) ────
+note as N_RULES
+  **Derived (not stored)**
+  • Overdue = Task, ACTIVE, due_date < today
+  • Pending confirmation = Duty, ACTIVE, end_date < today
+
+  **Integrity constraints**
+  • Duty: end_date >= start_date
+  • completed_by & completed_at set together iff status = COMPLETED
+  • At most one household per user (user_id unique)
+  • On leave: Membership row deleted; User and all authorship
+    kept and shown as "[former member] Name"
+end note
+
+' park the legend in the bottom-left corner, below the User hub
+User -[hidden]down- N_RULES
+@enduml
