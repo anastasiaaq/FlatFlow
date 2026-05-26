@@ -27,10 +27,10 @@ package "Edge Layer  «Controller»" #FFF8E7 {
   interface "REST API\n(HTTPS / JSON)" as REST
   [Views / ViewSets] as CTRL
   [Serializers] as SER
-  [Auth: session cookie + CSRF] as AUTH
+  [Session & CSRF middleware] as AUTH
 }
 
-' ── Business logic (refines MVC; orchestrates the domains) ───────────
+' ── Business logic (where real logic lives, e.g. status derivation) ──
 package "Business Logic Layer" #FFF8E7 {
   [Auth / User Service] as S_AUTH
   [Household Service] as S_HH
@@ -39,9 +39,9 @@ package "Business Logic Layer" #FFF8E7 {
   [Rule Service] as S_RULE
 }
 
-' ── Data access + Data = MVC Model ───────────────────────────────────
-package "Data Access Layer  «Model»" #F2F3F5 {
-  [Repositories / Django ORM] as REPO
+' ── Model = Django ORM (Active Record: models + managers/querysets) ──
+package "Model Layer  «Model»" #F2F3F5 {
+  [Django ORM models\n(managers / querysets)] as MODEL
 }
 
 package "Data Layer" #F2F3F5 {
@@ -58,10 +58,10 @@ CTRL --> S_HH
 CTRL --> S_CHORE
 CTRL --> S_ISSUE
 CTRL --> S_RULE
-S_AUTH  --> REPO
-S_HH    --> REPO
-S_CHORE --> REPO
-S_ISSUE --> REPO
-S_RULE  --> REPO
-REPO --> DB : SQL
+S_AUTH  --> MODEL
+S_HH    --> MODEL
+S_CHORE --> MODEL
+S_ISSUE --> MODEL
+S_RULE  --> MODEL
+MODEL --> DB : SQL
 @enduml
