@@ -8,6 +8,9 @@ RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
 COPY . .
 
+RUN chown -R node:node /app
+USER node
+
 EXPOSE 3000
 
 CMD ["pnpm", "dev", "--host", "0.0.0.0", "--port", "3000"]
