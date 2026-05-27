@@ -40,24 +40,39 @@ See [docs/user-stories.md](docs/user-stories.md) for the full breakdown.
 
 ## Setup
 
-The backend Django application lives in `src/backend`.
+The backend Django application lives in `src/backend`, and the frontend lives in `src/frontend`.
 
 ### Environment
 
-Create a local environment file from the example:
+Create local environment files from the examples:
 
 ```bash
-cd src/backend
-cp .env.example .env
+cp src/backend/.env.example src/backend/.env
+cp src/frontend/.env.example src/frontend/.env
 ```
+
+The Docker Compose setup uses the backend environment file for Django and PostgreSQL settings. `POSTGRES_HOST=flatflow-db` lets Django connect to the database service over the Compose network.
 
 ### Run With Docker Compose
 
+Start the full project from the `src` directory:
+
 ```bash
 cd src
-docker compose up --build -d
+docker compose up --build
+```
+
+Then open:
+
+- Frontend: http://localhost:3000
+- Backend health check: http://localhost:8000/health/
+- Database: localhost:5432
+
+Run migrations when needed:
+
+```bash
+cd src
 docker compose exec backend python manage.py migrate
-curl http://127.0.0.1:8000/health/
 ```
 
 ## Documentation

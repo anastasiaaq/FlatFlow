@@ -15,6 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.db import connection
+from django.db.utils import OperationalError
 from django.http import JsonResponse
 from django.urls import path
 from django.views.decorators.http import require_GET
@@ -22,7 +24,13 @@ from django.views.decorators.http import require_GET
 
 @require_GET
 def health_check(_request):
-    return JsonResponse({"status": "ok"})
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+    except OperationalError:
+        return JsonResponse({"status": "error", "database": "unavailable"}, status=503)
+
+    return JsonResponse({"status": "ok", "database": "ok"})
 
 urlpatterns = [
     path("health/", health_check, name="health-check"),
