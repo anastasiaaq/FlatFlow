@@ -1,0 +1,67 @@
+@startuml high-level-design
+title FlatFlow — High-Level Architecture
+
+' ── Styling (kept light, matches the data model) ─────────────────────
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName "Segoe UI"
+skinparam component {
+  BorderColor #3C6E91
+  BackgroundColor #FBFCFE
+}
+skinparam database {
+  BorderColor #2E7D32
+  BackgroundColor #E9F5EA
+}
+skinparam ArrowColor #5A6B7B
+
+' ── Presentation = MVC View (on the client) ──────────────────────────
+package "Presentation Layer  «View»" #E8F0FE {
+  [React SPA (TypeScript)] as SPA
+}
+
+' ── Edge = MVC Controller (request handling) ─────────────────────────
+package "Edge Layer  «Controller»" #FFF8E7 {
+  interface "REST API\n(HTTPS / JSON)" as REST
+  [Views / ViewSets] as CTRL
+  [Serializers] as SER
+  [Session & CSRF middleware] as AUTH
+}
+
+' ── Business logic (where real logic lives, e.g. status derivation) ──
+package "Business Logic Layer" #FFF8E7 {
+  [Auth / User Service] as S_AUTH
+  [Household Service] as S_HH
+  [Chore Service] as S_CHORE
+  [Issue Service] as S_ISSUE
+  [Rule Service] as S_RULE
+}
+
+' ── Data access = repositories over the Django ORM (= MVC Model) ─────
+package "Data Access Layer  «Model»" #F2F3F5 {
+  [Repositories\n(over Django ORM)] as REPO
+}
+
+package "Data Layer" #F2F3F5 {
+  database "PostgreSQL\napp data + sessions" as DB
+}
+
+' ── Flows ────────────────────────────────────────────────────────────
+SPA  --> REST : HTTPS, REST/JSON\n(request ⇄ response)
+REST --> CTRL
+CTRL ..> AUTH : validate session + CSRF
+CTRL ..> SER  : (de)serialize JSON
+CTRL --> S_AUTH
+CTRL --> S_HH
+CTRL --> S_CHORE
+CTRL --> S_ISSUE
+CTRL --> S_RULE
+S_AUTH  --> REPO
+S_HH    --> REPO
+S_CHORE --> REPO
+S_ISSUE --> REPO
+S_RULE  --> REPO
+REPO --> DB : SQL
+@enduml
