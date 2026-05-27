@@ -39,9 +39,9 @@ package "Business Logic Layer" #FFF8E7 {
   [Rule Service] as S_RULE
 }
 
-' ── Model = Django ORM (Active Record: models + managers/querysets) ──
-package "Model Layer  «Model»" #F2F3F5 {
-  [Django ORM models\n(managers / querysets)] as MODEL
+' ── Data access = repositories over the Django ORM (= MVC Model) ─────
+package "Data Access Layer  «Model»" #F2F3F5 {
+  [Repositories\n(over Django ORM)] as REPO
 }
 
 package "Data Layer" #F2F3F5 {
@@ -58,10 +58,10 @@ CTRL --> S_HH
 CTRL --> S_CHORE
 CTRL --> S_ISSUE
 CTRL --> S_RULE
-S_AUTH  --> MODEL
-S_HH    --> MODEL
-S_CHORE --> MODEL
-S_ISSUE --> MODEL
-S_RULE  --> MODEL
-MODEL --> DB : SQL
+S_AUTH  --> REPO
+S_HH    --> REPO
+S_CHORE --> REPO
+S_ISSUE --> REPO
+S_RULE  --> REPO
+REPO --> DB : SQL
 @enduml
