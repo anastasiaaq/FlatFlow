@@ -1,0 +1,4 @@
+packages: []
+
+pmOnFail: ignore
+trustLockfile: true
