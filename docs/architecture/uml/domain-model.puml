@@ -80,7 +80,7 @@ entity Issue #FFF8E7 {
   status : IssueStatus [1]
   created_at : datetime [1]
   updated_at : datetime [1]
-  author [1] <<FK>>
+  created_by [1] <<FK>>
 }
 
 entity Rule #FFF8E7 {
@@ -90,7 +90,7 @@ entity Rule #FFF8E7 {
   text : string [1]
   created_at : datetime [1]
   last_modified_at : datetime [1]
-  author [1] <<FK>>
+  created_by [1] <<FK>>
   last_modified_by [0..1] <<FK>>
 }
 
@@ -128,8 +128,8 @@ User ||--o{ Household : creates
 User ||--o{ Chore : created_by
 User |o--o{ Chore : assignee
 User |o--o{ Chore : completed_by
-User ||--o{ Issue : author
-User ||--o{ Rule  : author
+User ||--o{ Issue : created_by
+User ||--o{ Rule  : created_by
 User |o--o{ Rule  : last_modified_by
 
 ' ── Notes: floating legend (derived attributes + integrity rules) ────
