@@ -43,7 +43,16 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'drf_spectacular',
+    # Local apps
+    "accounts",
+    "households",
+    "chores",
+    "issues",
+    "rules",
 ]
+
+# Must be set before the first migration; do not change once migrations exist
+AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
