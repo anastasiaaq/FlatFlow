@@ -19,6 +19,8 @@ class Rule(models.Model):
     last_modified_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name="modified_rules",
     )
 

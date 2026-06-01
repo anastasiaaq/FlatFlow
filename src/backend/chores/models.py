@@ -27,6 +27,9 @@ class Chore(models.Model):
         default=ChoreStatus.ACTIVE,
     )
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     due_date = models.DateField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)

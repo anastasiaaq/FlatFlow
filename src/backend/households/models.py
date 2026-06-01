@@ -6,7 +6,7 @@ class Household(models.Model):
     name = models.CharField(max_length=60)
     invite_code = models.CharField(max_length=12, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    creator = models.ForeignKey(
+    created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="created_households",
