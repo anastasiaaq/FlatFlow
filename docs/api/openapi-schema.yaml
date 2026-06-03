@@ -114,8 +114,11 @@ components:
           allOf:
           - $ref: '#/components/schemas/User'
           nullable: true
+        has_household:
+          type: boolean
       required:
       - authenticated
+      - has_household
       - user
     User:
       type: object

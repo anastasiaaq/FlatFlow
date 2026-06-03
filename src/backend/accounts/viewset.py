@@ -55,10 +55,7 @@ class UserViewSet(viewsets.GenericViewSet):
         auth_login(request, created_user)
         self._persist_session(request)
         return Response(
-            {
-                "authenticated": True,
-                "user": UserSerializer(created_user).data,
-            },
+            self._auth_state(created_user),
             status=status.HTTP_201_CREATED,
         )
 
@@ -92,10 +89,7 @@ class UserViewSet(viewsets.GenericViewSet):
         auth_login(request, authenticated_user)
         self._persist_session(request)
         return Response(
-            {
-                "authenticated": True,
-                "user": UserSerializer(authenticated_user).data,
-            },
+            self._auth_state(authenticated_user),
             status=status.HTTP_200_OK,
         )
 
@@ -111,10 +105,7 @@ class UserViewSet(viewsets.GenericViewSet):
     def logout(self, request):
         auth_logout(request)
         return Response(
-            {
-                "authenticated": False,
-                "user": None,
-            },
+            self._auth_state(request.user),
             status=status.HTTP_200_OK,
         )
 
@@ -125,19 +116,25 @@ class UserViewSet(viewsets.GenericViewSet):
     )
     @action(detail=False, methods=["get"])
     def me(self, request):
-        if not request.user.is_authenticated:
-            return Response(
-                {
-                    "authenticated": False,
-                    "user": None,
-                },
-                status=status.HTTP_200_OK,
-            )
-
         return Response(
-            {
-                "authenticated": True,
-                "user": UserSerializer(request.user).data,
-            },
+            self._auth_state(request.user),
             status=status.HTTP_200_OK,
         )
+    
+    def _has_household(self, user):
+        return hasattr(user, "membership")
+
+    def _auth_state(self, user):
+        if not user.is_authenticated:
+            return {
+                "authenticated": False,
+                "user": None,
+                "has_household": False,
+            }
+
+        return {
+            "authenticated": True,
+            "user": UserSerializer(user).data,
+            "has_household": self._has_household(user),
+        }
+

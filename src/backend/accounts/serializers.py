@@ -34,9 +34,19 @@ class UserCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError(ACCOUNT_EXISTS_MESSAGE)
         return email
 
+    def _password_validation_user(self):
+        if self.instance is not None:
+            return self.instance
+
+        display_name = self.initial_data.get("display_name") or ""
+        return User(
+            email=User.objects.normalize_email(self.initial_data.get("email", "")),
+            display_name=str(display_name).strip(),
+        )
+
     def validate_password(self, value):
         try:
-            django_validate_password(value)
+            django_validate_password(value, user=self._password_validation_user())
         except DjangoValidationError as err:
             raise serializers.ValidationError(err.messages) from err
         return value
@@ -57,3 +67,4 @@ class UserLoginSerializer(serializers.Serializer):
 class AuthStateSerializer(serializers.Serializer):
     authenticated = serializers.BooleanField()
     user = UserSerializer(allow_null=True)
+    has_household = serializers.BooleanField()

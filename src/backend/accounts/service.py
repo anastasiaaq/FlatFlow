@@ -24,7 +24,8 @@ class UserService:
             raise ValidationError("Display name is required.")
 
         validate_email(email)
-        validate_password(user.password)
+        password_validation_user = User(email=email, display_name=display_name)
+        validate_password(user.password, user=password_validation_user)
 
         try:
             created_user = self.user_repository.create_user(
