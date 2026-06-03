@@ -7,9 +7,8 @@ paths:
   /api/users/:
     post:
       operationId: api_users_create
-      description: Create a new user instance. The user will be created with the provided
-        details.
-      summary: Create a user
+      description: Create a new user account and start an authenticated session.
+      summary: Register user
       tags:
       - users
       requestBody:
@@ -33,13 +32,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/AuthState'
           description: ''
   /api/users/login/:
     post:
       operationId: api_users_login_create
-      description: Authenticate a userThe user will be logged in with the provided
-        credentials.
+      description: Authenticate a user and start a persisted session.
       summary: Login user
       tags:
       - users
@@ -64,12 +62,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/AuthState'
           description: ''
+        '401':
+          description: No response body
   /api/users/logout/:
     post:
       operationId: api_users_logout_create
-      description: Logout a userThe user will be logged out with the provided credentials.
+      description: End the current session. This is idempotent for anonymous or expired
+        sessions.
       summary: Logout user
       tags:
       - users
@@ -79,9 +80,43 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthState'
+          description: ''
+  /api/users/me/:
+    get:
+      operationId: api_users_me_retrieve
+      description: Return the current user's authentication state.
+      summary: Current auth state
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthState'
+          description: ''
 components:
   schemas:
+    AuthState:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          nullable: true
+      required:
+      - authenticated
+      - user
     User:
       type: object
       properties:
@@ -107,9 +142,11 @@ components:
         display_name:
           type: string
           maxLength: 50
+          minLength: 1
         password:
           type: string
           writeOnly: true
+          minLength: 8
       required:
       - display_name
       - email
