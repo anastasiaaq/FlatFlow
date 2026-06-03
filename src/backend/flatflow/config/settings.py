@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
+    'django.contrib.sites',
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'drf_spectacular',
@@ -53,6 +54,11 @@ INSTALLED_APPS = [
 
 # Must be set before the first migration; do not change once migrations exist
 AUTH_USER_MODEL = "accounts.User"
+
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
+SESSION_COOKIE_HTTPONLY = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -76,7 +82,7 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-ROOT_URLCONF = "flatflow.config.urls"
+ROOT_URLCONF = "flatflow.common.urls"
 
 TEMPLATES = [
     {

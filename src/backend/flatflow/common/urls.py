@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.db import connection
 from django.db.utils import OperationalError
 from django.http import JsonResponse
-from django.urls import path
+from django.urls import include, path
 from django.views.decorators.http import require_GET
 
 from drf_spectacular.views import (
@@ -41,6 +41,7 @@ def health_check(_request):
 urlpatterns = [
     path("health/", health_check, name="health-check"),
     path("admin/", admin.site.urls),
+    path("api/", include("accounts.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",

@@ -6,6 +6,13 @@ from django.db.models.functions import Lower
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
+    @classmethod
+    def normalize_email(cls, email):
+        return super().normalize_email(email).strip().lower()
+
+    def get_by_natural_key(self, username):
+        return self.get(email__iexact=self.normalize_email(username))
+
     def _create_user(self, email, password, **extra_fields):
         if not email:
             raise ValueError("Users must have an email address.")

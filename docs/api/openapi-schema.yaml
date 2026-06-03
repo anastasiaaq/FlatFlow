@@ -3,5 +3,134 @@ info:
   title: FlatFlow API
   version: 1.0.0
   description: API documentation for FlatFlow
-paths: {}
-components: {}
+paths:
+  /api/users/:
+    post:
+      operationId: api_users_create
+      description: Create a new user instance. The user will be created with the provided
+        details.
+      summary: Create a user
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/login/:
+    post:
+      operationId: api_users_login_create
+      description: Authenticate a userThe user will be logged in with the provided
+        credentials.
+      summary: Login user
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/logout/:
+    post:
+      operationId: api_users_logout_create
+      description: Logout a userThe user will be logged out with the provided credentials.
+      summary: Logout user
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          maxLength: 50
+      required:
+      - display_name
+      - email
+      - id
+    UserCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          maxLength: 50
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - display_name
+      - email
+      - password
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

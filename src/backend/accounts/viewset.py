@@ -1,0 +1,143 @@
+from django.conf import settings
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from drf_spectacular.utils import extend_schema
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from .dtos import UserCreateRequest
+from .exceptions import UserAlreadyExistsError
+from .serializers import (
+    ACCOUNT_EXISTS_MESSAGE,
+    AuthStateSerializer,
+    UserCreateSerializer,
+    UserLoginSerializer,
+    UserSerializer,
+)
+
+from flatflow.common.container import container
+
+INVALID_LOGIN_MESSAGE = "Invalid email or password"
+
+
+@extend_schema(tags=["users"])
+class UserViewSet(viewsets.GenericViewSet):
+    serializer_class = UserSerializer
+
+    @property
+    def user_service(self):
+        return container.user_service()
+
+    def _persist_session(self, request):
+        request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+
+    @extend_schema(
+        summary="Register user",
+        description=(
+            "Create a new user account and start an authenticated session."
+        ),
+        request=UserCreateSerializer,
+        responses={status.HTTP_201_CREATED: AuthStateSerializer},
+    )
+    def create(self, request):
+        serializer = UserCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = UserCreateRequest(**serializer.validated_data)
+        try:
+            created_user = self.user_service.create_user(user)
+        except UserAlreadyExistsError:
+            return Response(
+                {"email": [ACCOUNT_EXISTS_MESSAGE]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        auth_login(request, created_user)
+        self._persist_session(request)
+        return Response(
+            {
+                "authenticated": True,
+                "user": UserSerializer(created_user).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+    @extend_schema(
+        summary="Login user",
+        description=(
+            "Authenticate a user and start a persisted session."
+        ),
+        request=UserLoginSerializer,
+        responses={
+            status.HTTP_200_OK: AuthStateSerializer,
+            status.HTTP_401_UNAUTHORIZED: None,
+        },
+    )
+    @action(detail=False, methods=["post"])
+    def login(self, request):
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        authenticated_user = authenticate(
+            request,
+            username=serializer.validated_data["email"],
+            password=serializer.validated_data["password"],
+        )
+        if authenticated_user is None:
+            return Response(
+                {"detail": INVALID_LOGIN_MESSAGE},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        auth_login(request, authenticated_user)
+        self._persist_session(request)
+        return Response(
+            {
+                "authenticated": True,
+                "user": UserSerializer(authenticated_user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        summary="Logout user",
+        description=(
+            "End the current session. This is idempotent for anonymous or expired sessions."
+        ),
+        request=None,
+        responses={status.HTTP_200_OK: AuthStateSerializer},
+    )
+    @action(detail=False, methods=["post"])
+    def logout(self, request):
+        auth_logout(request)
+        return Response(
+            {
+                "authenticated": False,
+                "user": None,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        summary="Current auth state",
+        description="Return the current user's authentication state.",
+        responses={status.HTTP_200_OK: AuthStateSerializer},
+    )
+    @action(detail=False, methods=["get"])
+    def me(self, request):
+        if not request.user.is_authenticated:
+            return Response(
+                {
+                    "authenticated": False,
+                    "user": None,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            {
+                "authenticated": True,
+                "user": UserSerializer(request.user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
