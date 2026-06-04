@@ -3,5 +3,188 @@ info:
   title: FlatFlow API
   version: 1.0.0
   description: API documentation for FlatFlow
-paths: {}
-components: {}
+paths:
+  /api/users/:
+    post:
+      operationId: api_users_create
+      description: Create a new user account and start an authenticated session.
+      summary: Register user
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthState'
+          description: ''
+  /api/users/csrf/:
+    get:
+      operationId: api_users_csrf_retrieve
+      description: Issue a csrftoken cookie for browser clients before unsafe requests.
+      summary: Set CSRF cookie
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/users/login/:
+    post:
+      operationId: api_users_login_create
+      description: Authenticate a user and start a persisted session.
+      summary: Login user
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthState'
+          description: ''
+        '401':
+          description: No response body
+  /api/users/logout/:
+    post:
+      operationId: api_users_logout_create
+      description: End the current session. This is idempotent for anonymous or expired
+        sessions.
+      summary: Logout user
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthState'
+          description: ''
+  /api/users/me/:
+    get:
+      operationId: api_users_me_retrieve
+      description: Return the current user's authentication state.
+      summary: Current auth state
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthState'
+          description: ''
+components:
+  schemas:
+    AuthState:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+        user:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          nullable: true
+        has_household:
+          type: boolean
+      required:
+      - authenticated
+      - has_household
+      - user
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          maxLength: 50
+      required:
+      - display_name
+      - email
+      - id
+    UserCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          maxLength: 50
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+      required:
+      - display_name
+      - email
+      - password
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

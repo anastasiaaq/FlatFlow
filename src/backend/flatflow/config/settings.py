@@ -54,6 +54,21 @@ INSTALLED_APPS = [
 # Must be set before the first migration; do not change once migrations exist
 AUTH_USER_MODEL = "accounts.User"
 
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = env_bool("DJANGO_SESSION_COOKIE_SECURE", default=not DEBUG)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True
+CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", default=not DEBUG)
+
+_CROSS_SITE_SECURE_COOKIES = (
+    CORS_ALLOW_CREDENTIALS
+    and SESSION_COOKIE_SECURE
+    and CSRF_COOKIE_SECURE
+)
+SESSION_COOKIE_SAMESITE = "None" if _CROSS_SITE_SECURE_COOKIES else "Lax"
+CSRF_COOKIE_SAMESITE = "None" if _CROSS_SITE_SECURE_COOKIES else "Lax"
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -76,7 +91,7 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
 }
 
-ROOT_URLCONF = "flatflow.config.urls"
+ROOT_URLCONF = "flatflow.common.urls"
 
 TEMPLATES = [
     {
@@ -151,8 +166,6 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", default=False)
-SESSION_COOKIE_SECURE = env_bool("DJANGO_SESSION_COOKIE_SECURE", default=False)
-CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", default=False)
 SECURE_PROXY_SSL_HEADER = None
 if env_bool("DJANGO_USE_TRUSTED_PROXY", default=False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
