@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.middleware.csrf import get_token
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -110,6 +111,17 @@ class UserViewSet(viewsets.GenericViewSet):
         )
 
     @extend_schema(
+        summary="Set CSRF cookie",
+        description="Issue a csrftoken cookie for browser clients before unsafe requests.",
+        request=None,
+        responses={status.HTTP_204_NO_CONTENT: None},
+    )
+    @action(detail=False, methods=["get"])
+    def csrf(self, request):
+        get_token(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(
         summary="Current auth state",
         description="Return the current user's authentication state.",
         responses={status.HTTP_200_OK: AuthStateSerializer},
@@ -137,4 +149,3 @@ class UserViewSet(viewsets.GenericViewSet):
             "user": UserSerializer(user).data,
             "has_household": self._has_household(user),
         }
-
