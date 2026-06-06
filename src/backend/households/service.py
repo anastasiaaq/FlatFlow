@@ -84,11 +84,10 @@ class HouseholdService:
         return household
 
     def leave_household(self, user) -> LeaveResult:
-        membership = self.household_repository.get_membership(user)
-        if membership is None:
-            raise NotInHouseholdError()
-
         with transaction.atomic():
+            membership = self.household_repository.get_membership_for_update(user)
+            if membership is None:
+                raise NotInHouseholdError()
             household = self.household_repository.get_household_for_update(
                 membership.household_id
             )

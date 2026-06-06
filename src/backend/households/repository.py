@@ -9,6 +9,10 @@ class HouseholdRepository:
             .first()
         )
 
+    def get_membership_for_update(self, user):
+        # Lock the row so a concurrent leave by the same user can't act on a stale membership read.
+        return Membership.objects.select_for_update().filter(user=user).first()
+
     def get_by_invite_code(self, invite_code):
         return Household.objects.filter(invite_code=invite_code).first()
 
