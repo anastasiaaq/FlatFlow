@@ -4,15 +4,18 @@ from django.middleware.csrf import get_token
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .dtos import UserCreateRequest
+from .dtos import UserCreateRequest, UserProfileUpdateRequest
 from .exceptions import UserAlreadyExistsError
 from .serializers import (
     ACCOUNT_EXISTS_MESSAGE,
     AuthStateSerializer,
     UserCreateSerializer,
     UserLoginSerializer,
+    UserProfileSerializer,
+    UserProfileUpdateSerializer,
     UserSerializer,
 )
 
@@ -132,7 +135,47 @@ class UserViewSet(viewsets.GenericViewSet):
             self._auth_state(request.user),
             status=status.HTTP_200_OK,
         )
-    
+
+    @extend_schema(
+        summary="Current user profile",
+        description="Return the authenticated user's profile.",
+        responses={status.HTTP_200_OK: UserProfileSerializer},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[IsAuthenticated],
+        url_path="profile",
+    )
+    def profile(self, request):
+        user = self.user_service.get_user_profile(request.user)
+        return Response(
+            UserProfileSerializer(user).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        summary="Update user profile",
+        description="Update the authenticated user's profile.",
+        request=UserProfileUpdateSerializer,
+        responses={
+            status.HTTP_200_OK: UserProfileSerializer,
+            status.HTTP_400_BAD_REQUEST: UserProfileUpdateSerializer,
+        },
+    )
+    @profile.mapping.patch
+    def update_profile(self, request):
+        serializer = UserProfileUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        profile = UserProfileUpdateRequest(**serializer.validated_data)
+        user = self.user_service.update_user_profile(request.user, profile)
+
+        return Response(
+            UserProfileSerializer(user).data,
+            status=status.HTTP_200_OK,
+        )
+
     def _has_household(self, user):
         return hasattr(user, "membership")
 

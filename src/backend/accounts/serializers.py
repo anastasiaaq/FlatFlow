@@ -14,6 +14,19 @@ class UserSerializer(serializers.Serializer):
     display_name = serializers.CharField(max_length=50)
 
 
+class UserProfileSerializer(serializers.Serializer):
+    email = serializers.EmailField(read_only=True)
+    display_name = serializers.CharField(max_length=50, read_only=True)
+
+
+class UserProfileUpdateSerializer(serializers.Serializer):
+    display_name = serializers.CharField(
+        max_length=50,
+        min_length=1,
+        trim_whitespace=True,
+    )
+
+
 class UserCreateSerializer(serializers.Serializer):
     email = serializers.EmailField()
     display_name = serializers.CharField(

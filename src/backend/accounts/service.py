@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import IntegrityError
 
-from .dtos import UserCreateRequest
+from .dtos import UserCreateRequest, UserProfileUpdateRequest
 from .exceptions import UserAlreadyExistsError
 from .models import User
 from .repository import UserRepository
@@ -15,6 +15,9 @@ class UserService:
 
     def get_user_by_email(self, email):
         return self.user_repository.get_user_by_email(email)
+
+    def get_user_profile(self, user: User) -> User:
+        return self.user_repository.get_user_by_id(user.id)
 
     def create_user(self, user: UserCreateRequest) -> User:
         email = User.objects.normalize_email(user.email)
@@ -36,3 +39,16 @@ class UserService:
         except IntegrityError as err:
             raise UserAlreadyExistsError() from err
         return created_user
+
+    def update_user_profile(self, user: User, profile: UserProfileUpdateRequest) -> User:
+        display_name = profile.display_name.strip()
+
+        if not display_name:
+            raise ValidationError("Display name is required.")
+        if len(display_name) > 50:
+            raise ValidationError("Display name must be 50 characters or fewer.")
+
+        return self.user_repository.update_user_profile(
+            user_id=user.id,
+            display_name=display_name,
+        )

@@ -15,6 +15,11 @@ class UserLoginRequest:
 
 
 @dataclass
+class UserProfileUpdateRequest:
+    display_name: str
+
+
+@dataclass
 class UserView:
     id: int
     email: str
