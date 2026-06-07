@@ -117,6 +117,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuthState'
           description: ''
+  /api/users/profile/:
+    get:
+      operationId: api_users_profile_retrieve
+      description: Return the authenticated user's profile.
+      summary: Current user profile
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    put:
+      operationId: api_users_profile_update
+      description: Update the authenticated user's profile.
+      summary: Update user profile
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
 components:
   schemas:
     AuthState:
@@ -180,6 +225,29 @@ components:
       required:
       - email
       - password
+    UserProfile:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          readOnly: true
+        display_name:
+          type: string
+          readOnly: true
+          maxLength: 50
+      required:
+      - display_name
+      - email
+    UserProfileUpdate:
+      type: object
+      properties:
+        display_name:
+          type: string
+          maxLength: 50
+          minLength: 1
+      required:
+      - display_name
   securitySchemes:
     basicAuth:
       type: http
