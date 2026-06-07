@@ -27,6 +27,12 @@ class UserProfileUpdateSerializer(serializers.Serializer):
     )
 
 
+class ValidationErrorResponseSerializer(serializers.Serializer):
+    errors = serializers.DictField(
+        child=serializers.ListField(child=serializers.CharField())
+    )
+
+
 class UserCreateSerializer(serializers.Serializer):
     email = serializers.EmailField()
     display_name = serializers.CharField(

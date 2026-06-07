@@ -166,7 +166,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfileUpdate'
+                $ref: '#/components/schemas/ValidationErrorResponse'
           description: ''
 components:
   schemas:
@@ -254,6 +254,17 @@ components:
           minLength: 1
       required:
       - display_name
+    ValidationErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+      - errors
   securitySchemes:
     basicAuth:
       type: http
