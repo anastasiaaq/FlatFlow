@@ -163,7 +163,7 @@ class UserViewSet(viewsets.GenericViewSet):
             status.HTTP_400_BAD_REQUEST: UserProfileUpdateSerializer,
         },
     )
-    @profile.mapping.patch
+    @profile.mapping.put
     def update_profile(self, request):
         serializer = UserProfileUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
