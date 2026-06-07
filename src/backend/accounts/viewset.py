@@ -16,7 +16,6 @@ from .serializers import (
     UserLoginSerializer,
     UserProfileSerializer,
     UserProfileUpdateSerializer,
-    ValidationErrorResponseSerializer,
     UserSerializer,
 )
 
@@ -159,21 +158,12 @@ class UserViewSet(viewsets.GenericViewSet):
         summary="Update user profile",
         description="Update the authenticated user's profile.",
         request=UserProfileUpdateSerializer,
-        responses={
-            status.HTTP_200_OK: UserProfileSerializer,
-            status.HTTP_400_BAD_REQUEST: ValidationErrorResponseSerializer,
-        },
+        responses={status.HTTP_200_OK: UserProfileSerializer},
     )
     @profile.mapping.put
     def update_profile(self, request):
         serializer = UserProfileUpdateSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(
-                ValidationErrorResponseSerializer(
-                    {"errors": serializer.errors}
-                ).data,
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        serializer.is_valid(raise_exception=True)
 
         profile = UserProfileUpdateRequest(**serializer.validated_data)
         user = self.user_service.update_user_profile(request.user, profile)
