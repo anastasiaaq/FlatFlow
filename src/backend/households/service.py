@@ -2,7 +2,12 @@ import secrets
 
 from django.db import IntegrityError, transaction
 
-from .dtos import HouseholdCreateRequest, HouseholdJoinRequest, LeaveResult
+from .dtos import (
+    HouseholdCreateRequest,
+    HouseholdJoinRequest,
+    HouseholdView,
+    LeaveResult,
+)
 from .exceptions import (
     AlreadyInHouseholdError,
     AlreadyInThisHouseholdError,
@@ -33,16 +38,17 @@ class HouseholdService:
                 return code
         raise RuntimeError("Could not generate a unique invite code.")
 
-    def get_current_household(self, user):
+    def get_current_household(self, user) -> HouseholdView:
         membership = self.household_repository.get_membership(user)
         if membership is None:
             raise NotInHouseholdError()
-        return membership.household
+        return self._to_view(membership.household)
 
-    def list_members(self, household):
-        return self.household_repository.list_members(household)
+    def _to_view(self, household) -> HouseholdView:
+        members = self.household_repository.list_members(household)
+        return HouseholdView.from_household(household, members)
 
-    def create_household(self, user, request: HouseholdCreateRequest):
+    def create_household(self, user, payload: HouseholdCreateRequest) -> HouseholdView:
         if self.household_repository.get_membership(user) is not None:
             raise CannotCreateWhileInHouseholdError()
 
@@ -50,7 +56,7 @@ class HouseholdService:
         try:
             with transaction.atomic():
                 household = self.household_repository.create_household(
-                    name=request.name.strip(),
+                    name=payload.name.strip(),
                     created_by=user,
                     invite_code=invite_code,
                 )
@@ -60,10 +66,10 @@ class HouseholdService:
         except IntegrityError as err:
             # A concurrent create won the single-household race.
             raise CannotCreateWhileInHouseholdError() from err
-        return household
+        return self._to_view(household)
 
-    def join_household(self, user, request: HouseholdJoinRequest):
-        household = self.household_repository.get_by_invite_code(request.invite_code)
+    def join_household(self, user, payload: HouseholdJoinRequest) -> HouseholdView:
+        household = self.household_repository.get_by_invite_code(payload.invite_code)
         if household is None:
             raise InviteCodeNotFoundError()
 
@@ -81,7 +87,7 @@ class HouseholdService:
         except IntegrityError as err:
             # A concurrent join created the membership first.
             raise AlreadyInHouseholdError() from err
-        return household
+        return self._to_view(household)
 
     def leave_household(self, user) -> LeaveResult:
         with transaction.atomic():

@@ -4,7 +4,7 @@ from .models import Household, Membership
 class HouseholdRepository:
     def get_membership(self, user):
         return (
-            Membership.objects.select_related("household")
+            Membership.objects.select_related("household__created_by")
             .filter(user=user)
             .first()
         )
@@ -14,7 +14,11 @@ class HouseholdRepository:
         return Membership.objects.select_for_update().filter(user=user).first()
 
     def get_by_invite_code(self, invite_code):
-        return Household.objects.filter(invite_code=invite_code).first()
+        return (
+            Household.objects.select_related("created_by")
+            .filter(invite_code=invite_code)
+            .first()
+        )
 
     def get_household_for_update(self, household_id):
         # Serialize concurrent leaves so the last-member check can't orphan the household.

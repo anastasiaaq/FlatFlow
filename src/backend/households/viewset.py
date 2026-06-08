@@ -24,19 +24,8 @@ class HouseholdViewSet(viewsets.GenericViewSet):
     def household_service(self):
         return container.household_service()
 
-    def _household_payload(self, household):
-        return {
-            "id": household.id,
-            "name": household.name,
-            "invite_code": household.invite_code,
-            "created_at": household.created_at,
-            "created_by": household.created_by,
-            "members": self.household_service.list_members(household),
-        }
-
-    def _detail_response(self, household, status_code):
-        serializer = HouseholdDetailSerializer(self._household_payload(household))
-        return Response(serializer.data, status=status_code)
+    def _detail_response(self, view, status_code):
+        return Response(HouseholdDetailSerializer(view).data, status=status_code)
 
     @extend_schema(
         summary="Create household",
@@ -52,11 +41,11 @@ class HouseholdViewSet(viewsets.GenericViewSet):
         serializer = HouseholdCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        household = self.household_service.create_household(
+        view = self.household_service.create_household(
             request.user,
             HouseholdCreateRequest(**serializer.validated_data),
         )
-        return self._detail_response(household, status.HTTP_201_CREATED)
+        return self._detail_response(view, status.HTTP_201_CREATED)
 
     @extend_schema(
         summary="Current household",
@@ -69,8 +58,8 @@ class HouseholdViewSet(viewsets.GenericViewSet):
     )
     @action(detail=False, methods=["get"])
     def current(self, request):
-        household = self.household_service.get_current_household(request.user)
-        return self._detail_response(household, status.HTTP_200_OK)
+        view = self.household_service.get_current_household(request.user)
+        return self._detail_response(view, status.HTTP_200_OK)
 
     @extend_schema(
         summary="Join household",
@@ -88,11 +77,11 @@ class HouseholdViewSet(viewsets.GenericViewSet):
         serializer = HouseholdJoinSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        household = self.household_service.join_household(
+        view = self.household_service.join_household(
             request.user,
             HouseholdJoinRequest(**serializer.validated_data),
         )
-        return self._detail_response(household, status.HTTP_200_OK)
+        return self._detail_response(view, status.HTTP_200_OK)
 
     @extend_schema(
         summary="Leave household",
