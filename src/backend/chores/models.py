@@ -20,7 +20,7 @@ class Chore(models.Model):
     )
     type = models.CharField(max_length=4, choices=ChoreType.choices)
     title = models.CharField(max_length=80)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, max_length=500)
     status = models.CharField(
         max_length=9,
         choices=ChoreStatus.choices,
@@ -54,6 +54,32 @@ class Chore(models.Model):
         blank=True,
         related_name="assigned_chores",
     )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                name="chore_task_dates_valid",
+                condition=(
+                    ~models.Q(type=ChoreType.TASK)
+                    | models.Q(
+                        start_date__isnull=True,
+                        end_date__isnull=True,
+                    )
+                ),
+            ),
+            models.CheckConstraint(
+                name="chore_duty_dates_valid",
+                condition=(
+                    ~models.Q(type=ChoreType.DUTY)
+                    | models.Q(
+                        due_date__isnull=True,
+                        start_date__isnull=False,
+                        end_date__isnull=False,
+                        end_date__gte=models.F("start_date"),
+                    )
+                ),
+            ),
+        ]
 
     def __str__(self):
         return self.title

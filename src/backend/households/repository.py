@@ -49,6 +49,7 @@ class HouseholdRepository:
     def unassign_member_chores(self, *, household, user):
         # assignee SET_NULL only fires on user deletion, not on leave, so clear it here.
         # US-3.2: active chores only; completed keep their assignee.
+        # Overdue Tasks and pending-confirmation Duties are stored as ACTIVE.
         from chores.models import Chore, ChoreStatus
 
         return Chore.objects.filter(
