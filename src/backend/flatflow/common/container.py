@@ -30,6 +30,7 @@ class Container(containers.DeclarativeContainer):
     chore_service = providers.Factory(
         ChoreService,
         chore_repository=chore_repository,
+    )
 
     rule_repository = providers.Factory(RuleRepository)
 

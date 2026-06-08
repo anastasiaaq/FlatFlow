@@ -89,6 +89,10 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API documentation for FlatFlow",
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    "ENUM_NAME_OVERRIDES": {
+        "ChoreDisplayStatus": "chores.statuses.ChoreDisplayStatus",
+        "ChoreStatus": "chores.models.ChoreStatus",
+    },
 }
 
 ROOT_URLCONF = "flatflow.common.urls"

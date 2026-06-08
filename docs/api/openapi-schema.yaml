@@ -704,11 +704,11 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/ChoreDetailStatusEnum'
+          - $ref: '#/components/schemas/ChoreDisplayStatus'
           readOnly: true
         stored_status:
           allOf:
-          - $ref: '#/components/schemas/StoredStatusEnum'
+          - $ref: '#/components/schemas/ChoreStatus'
           readOnly: true
         created_at:
           type: string
@@ -768,7 +768,7 @@ components:
       - title
       - type
       - updated_at
-    ChoreDetailStatusEnum:
+    ChoreDisplayStatus:
       enum:
       - ACTIVE
       - COMPLETED
@@ -792,6 +792,14 @@ components:
       required:
       - display_name
       - id
+    ChoreStatus:
+      enum:
+      - ACTIVE
+      - COMPLETED
+      type: string
+      description: |-
+        * `ACTIVE` - Active
+        * `COMPLETED` - Completed
     ChoreUpdate:
       type: object
       properties:
@@ -820,7 +828,7 @@ components:
           format: date
           nullable: true
         status:
-          $ref: '#/components/schemas/StatusFf3Enum'
+          $ref: '#/components/schemas/ChoreStatus'
     HouseholdCreate:
       type: object
       properties:
@@ -919,31 +927,7 @@ components:
           format: date
           nullable: true
         status:
-          $ref: '#/components/schemas/StatusFf3Enum'
-    StatusFf3Enum:
-      enum:
-      - ACTIVE
-      - COMPLETED
-      type: string
-      description: |-
-        * `ACTIVE` - Active
-        * `COMPLETED` - Completed
-    StoredStatusEnum:
-      enum:
-      - ACTIVE
-      - COMPLETED
-      type: string
-      description: |-
-        * `ACTIVE` - Active
-        * `COMPLETED` - Completed
-    TypeEnum:
-      enum:
-      - TASK
-      - DUTY
-      type: string
-      description: |-
-        * `TASK` - Task
-        * `DUTY` - Duty
+          $ref: '#/components/schemas/ChoreStatus'
     RuleDetail:
       type: object
       properties:
@@ -998,6 +982,14 @@ components:
           minLength: 1
       required:
       - text
+    TypeEnum:
+      enum:
+      - TASK
+      - DUTY
+      type: string
+      description: |-
+        * `TASK` - Task
+        * `DUTY` - Duty
     User:
       type: object
       properties:
