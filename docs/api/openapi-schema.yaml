@@ -356,6 +356,130 @@ paths:
           description: No response body
         '404':
           description: No response body
+  /api/rules/:
+    get:
+      operationId: api_rules_list
+      description: List all house rules of the current household in chronological
+        order.
+      summary: List house rules
+      tags:
+      - rules
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RuleDetail'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+    post:
+      operationId: api_rules_create
+      description: Add a new house rule to the current household.
+      summary: Add house rule
+      tags:
+      - rules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RuleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RuleWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+  /api/rules/{id}/:
+    put:
+      operationId: api_rules_update
+      description: Edit any house rule of the current household. Records the editor
+        as the last-modified-by member.
+      summary: Edit house rule
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Rule ID.
+        required: true
+      tags:
+      - rules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RuleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RuleWrite'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+    delete:
+      operationId: api_rules_destroy
+      description: Delete any house rule of the current household.
+      summary: Delete house rule
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: Rule ID.
+        required: true
+      tags:
+      - rules
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
   /api/users/:
     post:
       operationId: api_users_create
@@ -820,6 +944,60 @@ components:
       description: |-
         * `TASK` - Task
         * `DUTY` - Duty
+    RuleDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/RuleMember'
+          readOnly: true
+        last_modified_by:
+          allOf:
+          - $ref: '#/components/schemas/RuleMember'
+          readOnly: true
+          nullable: true
+      required:
+      - created_at
+      - created_by
+      - id
+      - last_modified_at
+      - last_modified_by
+      - text
+    RuleMember:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        display_name:
+          type: string
+          readOnly: true
+      required:
+      - display_name
+      - id
+    RuleWrite:
+      type: object
+      properties:
+        text:
+          type: string
+          maxLength: 280
+          minLength: 1
+      required:
+      - text
     User:
       type: object
       properties:
