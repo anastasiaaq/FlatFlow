@@ -2,6 +2,8 @@ from dependency_injector import containers, providers
 
 from accounts.repository import UserRepository
 from accounts.service import UserService
+from chores.repository import ChoreRepository
+from chores.service import ChoreService
 from households.repository import HouseholdRepository
 from households.service import HouseholdService
 
@@ -18,6 +20,14 @@ class Container(containers.DeclarativeContainer):
 
     household_service = providers.Factory(
         HouseholdService,
+        household_repository=household_repository,
+    )
+
+    chore_repository = providers.Factory(ChoreRepository)
+
+    chore_service = providers.Factory(
+        ChoreService,
+        chore_repository=chore_repository,
         household_repository=household_repository,
     )
 

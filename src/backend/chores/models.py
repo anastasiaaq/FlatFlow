@@ -20,7 +20,7 @@ class Chore(models.Model):
     )
     type = models.CharField(max_length=4, choices=ChoreType.choices)
     title = models.CharField(max_length=80)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, max_length=500)
     status = models.CharField(
         max_length=9,
         choices=ChoreStatus.choices,

@@ -4,6 +4,247 @@ info:
   version: 1.0.0
   description: API documentation for FlatFlow
 paths:
+  /api/chores/:
+    get:
+      operationId: api_chores_list
+      description: Return chores for the current household, with optional assignee
+        and status filters. The default sort follows the chore-list priority order.
+      summary: List chores
+      parameters:
+      - in: query
+        name: assignee
+        schema:
+          type: string
+          default: any
+          minLength: 1
+      - in: query
+        name: sort
+        schema:
+          type: string
+          default: default
+          minLength: 1
+      - in: query
+        name: status
+        schema:
+          type: string
+          default: all
+          minLength: 1
+      tags:
+      - chores
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChoreDetail'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+    post:
+      operationId: api_chores_create
+      description: Create a Task or Duty in the current household.
+      summary: Create chore
+      tags:
+      - chores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChoreCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChoreCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChoreCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChoreDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+  /api/chores/{id}/:
+    get:
+      operationId: api_chores_retrieve
+      description: Return one chore from the current household.
+      summary: Get chore
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this chore.
+        required: true
+      tags:
+      - chores
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChoreDetail'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+    put:
+      operationId: api_chores_update
+      description: Edit a chore. Chore type is immutable; status may be changed to
+        reopen or complete a chore.
+      summary: Update chore
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this chore.
+        required: true
+      tags:
+      - chores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChoreUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChoreUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChoreUpdate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChoreDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+    patch:
+      operationId: api_chores_partial_update
+      description: Edit one or more chore fields. Chore type is immutable; status
+        may be changed to reopen or complete a chore.
+      summary: Partially update chore
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this chore.
+        required: true
+      tags:
+      - chores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedChoreUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedChoreUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedChoreUpdate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChoreDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+    delete:
+      operationId: api_chores_destroy
+      description: Delete a chore from the current household.
+      summary: Delete chore
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this chore.
+        required: true
+      tags:
+      - chores
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+  /api/chores/{id}/complete/:
+    post:
+      operationId: api_chores_complete_create
+      description: Mark a chore completed as the current user. Tasks can be completed
+        at any time; Duties can be completed from their start date onward.
+      summary: Mark chore completed
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this chore.
+        required: true
+      tags:
+      - chores
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChoreDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
   /api/households/:
     post:
       operationId: api_households_create
@@ -290,6 +531,172 @@ components:
       - authenticated
       - has_household
       - user
+    ChoreCreate:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        title:
+          type: string
+          maxLength: 80
+          minLength: 1
+        description:
+          type: string
+          default: ''
+          maxLength: 500
+        assignee_id:
+          type: integer
+          nullable: true
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - title
+      - type
+    ChoreDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ChoreDetailStatusEnum'
+          readOnly: true
+        stored_status:
+          allOf:
+          - $ref: '#/components/schemas/StoredStatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        due_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        start_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/ChoreMember'
+          readOnly: true
+        assignee:
+          allOf:
+          - $ref: '#/components/schemas/ChoreMember'
+          readOnly: true
+          nullable: true
+        completed_by:
+          allOf:
+          - $ref: '#/components/schemas/ChoreMember'
+          readOnly: true
+          nullable: true
+      required:
+      - assignee
+      - completed_at
+      - completed_by
+      - created_at
+      - created_by
+      - description
+      - due_date
+      - end_date
+      - id
+      - start_date
+      - status
+      - stored_status
+      - title
+      - type
+      - updated_at
+    ChoreDetailStatusEnum:
+      enum:
+      - ACTIVE
+      - COMPLETED
+      - OVERDUE
+      - PENDING_CONFIRMATION
+      type: string
+      description: |-
+        * `ACTIVE` - Active
+        * `COMPLETED` - Completed
+        * `OVERDUE` - Overdue
+        * `PENDING_CONFIRMATION` - Pending confirmation
+    ChoreMember:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        display_name:
+          type: string
+          readOnly: true
+      required:
+      - display_name
+      - id
+    ChoreUpdate:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        title:
+          type: string
+          maxLength: 80
+          minLength: 1
+        description:
+          type: string
+          maxLength: 500
+        assignee_id:
+          type: integer
+          nullable: true
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/StatusFf3Enum'
     HouseholdCreate:
       type: object
       properties:
@@ -360,6 +767,59 @@ components:
       required:
       - display_name
       - id
+    PatchedChoreUpdate:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        title:
+          type: string
+          maxLength: 80
+          minLength: 1
+        description:
+          type: string
+          maxLength: 500
+        assignee_id:
+          type: integer
+          nullable: true
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/StatusFf3Enum'
+    StatusFf3Enum:
+      enum:
+      - ACTIVE
+      - COMPLETED
+      type: string
+      description: |-
+        * `ACTIVE` - Active
+        * `COMPLETED` - Completed
+    StoredStatusEnum:
+      enum:
+      - ACTIVE
+      - COMPLETED
+      type: string
+      description: |-
+        * `ACTIVE` - Active
+        * `COMPLETED` - Completed
+    TypeEnum:
+      enum:
+      - TASK
+      - DUTY
+      type: string
+      description: |-
+        * `TASK` - Task
+        * `DUTY` - Duty
     User:
       type: object
       properties:
