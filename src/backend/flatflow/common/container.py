@@ -4,6 +4,8 @@ from accounts.repository import UserRepository
 from accounts.service import UserService
 from households.repository import HouseholdRepository
 from households.service import HouseholdService
+from rules.repository import RuleRepository
+from rules.service import RuleService
 
 
 class Container(containers.DeclarativeContainer):
@@ -18,6 +20,14 @@ class Container(containers.DeclarativeContainer):
 
     household_service = providers.Factory(
         HouseholdService,
+        household_repository=household_repository,
+    )
+
+    rule_repository = providers.Factory(RuleRepository)
+
+    rule_service = providers.Factory(
+        RuleService,
+        rule_repository=rule_repository,
         household_repository=household_repository,
     )
 
