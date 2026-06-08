@@ -334,14 +334,6 @@ class ChoreService:
         if status == ChoreStatus.COMPLETED and chore.status != ChoreStatus.COMPLETED:
             self._complete_chore_fields(chore, user)
             update_fields.extend(["status", "completed_at", "completed_by"])
-            return
-
-        if (
-            status == ChoreStatus.COMPLETED
-            and (chore.completed_at is None or chore.completed_by is None)
-        ):
-            self._complete_chore_fields(chore, user)
-            update_fields.extend(["completed_at", "completed_by"])
 
     def complete_chore(self, user, chore_id) -> ChoreView:
         household = self._current_household(user)

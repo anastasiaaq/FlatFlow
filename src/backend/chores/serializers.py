@@ -84,16 +84,11 @@ class ChoreUpdateSerializer(serializers.Serializer):
     end_date = serializers.DateField(allow_null=True, required=False)
     status = serializers.ChoiceField(choices=ChoreStatus.choices, required=False)
 
-    def _existing_value(self, field):
-        if self.instance is None:
-            return None
-        return getattr(self.instance, field, None)
-
     def validate(self, attrs):
-        chore_type = attrs.get("type") or self._existing_value("type")
-        start_date = attrs.get("start_date", self._existing_value("start_date"))
-        end_date = attrs.get("end_date", self._existing_value("end_date"))
-        due_date = attrs.get("due_date", self._existing_value("due_date"))
+        chore_type = attrs.get("type")
+        start_date = attrs.get("start_date")
+        end_date = attrs.get("end_date")
+        due_date = attrs.get("due_date")
         errors = {}
 
         if chore_type == ChoreType.TASK:
