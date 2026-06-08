@@ -55,5 +55,31 @@ class Chore(models.Model):
         related_name="assigned_chores",
     )
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                name="chore_task_dates_valid",
+                condition=(
+                    ~models.Q(type=ChoreType.TASK)
+                    | models.Q(
+                        start_date__isnull=True,
+                        end_date__isnull=True,
+                    )
+                ),
+            ),
+            models.CheckConstraint(
+                name="chore_duty_dates_valid",
+                condition=(
+                    ~models.Q(type=ChoreType.DUTY)
+                    | models.Q(
+                        due_date__isnull=True,
+                        start_date__isnull=False,
+                        end_date__isnull=False,
+                        end_date__gte=models.F("start_date"),
+                    )
+                ),
+            ),
+        ]
+
     def __str__(self):
         return self.title
