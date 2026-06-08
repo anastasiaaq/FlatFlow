@@ -4,6 +4,117 @@ info:
   version: 1.0.0
   description: API documentation for FlatFlow
 paths:
+  /api/households/:
+    post:
+      operationId: api_households_create
+      description: Create a new household and join it as the first member.
+      summary: Create household
+      tags:
+      - households
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HouseholdCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/HouseholdCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/HouseholdCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HouseholdDetail'
+          description: ''
+        '401':
+          description: No response body
+        '409':
+          description: No response body
+  /api/households/current/:
+    get:
+      operationId: api_households_current_retrieve
+      description: Return the household the current user belongs to, with its members.
+      summary: Current household
+      tags:
+      - households
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HouseholdDetail'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+  /api/households/join/:
+    post:
+      operationId: api_households_join_create
+      description: Join an existing household using its invite code.
+      summary: Join household
+      tags:
+      - households
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HouseholdJoin'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/HouseholdJoin'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/HouseholdJoin'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HouseholdDetail'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+        '409':
+          description: No response body
+  /api/households/leave/:
+    post:
+      operationId: api_households_leave_create
+      description: Leave the current household. If the user is the last member, the
+        household and all its data are deleted.
+      summary: Leave household
+      tags:
+      - households
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaveResult'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
   /api/users/:
     post:
       operationId: api_users_create
@@ -179,6 +290,76 @@ components:
       - authenticated
       - has_household
       - user
+    HouseholdCreate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 60
+          minLength: 1
+      required:
+      - name
+    HouseholdDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        invite_code:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/Member'
+          readOnly: true
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+          readOnly: true
+      required:
+      - created_at
+      - created_by
+      - id
+      - invite_code
+      - members
+      - name
+    HouseholdJoin:
+      type: object
+      properties:
+        invite_code:
+          type: string
+          maxLength: 12
+          minLength: 1
+      required:
+      - invite_code
+    LeaveResult:
+      type: object
+      properties:
+        household_deleted:
+          type: boolean
+          readOnly: true
+      required:
+      - household_deleted
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        display_name:
+          type: string
+          readOnly: true
+      required:
+      - display_name
+      - id
     User:
       type: object
       properties:
