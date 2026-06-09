@@ -7,7 +7,7 @@ Goes with [`test-plan.md`](./test-plan.md). Each case is one table. During a run
 - **ID:** `TC-<MODULE>-<NN>` — `AUTH`, `PROF`, `HOUSE`, `CHORE`, `ISSUE`, `RULE`
 - **API (now) / UI (deferred):** where an outcome spans both surfaces, the Expected result is split into `API (now)` (verified via Swagger today) and `UI (deferred)` (verified once the frontend exists). The case `Status` tracks the API part until the UI is available.
 
-Acceptance criteria source: [`user-stories.md`](./user-stories.md).
+Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 
 ---
 
