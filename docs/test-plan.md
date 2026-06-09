@@ -48,14 +48,16 @@ Out of scope (not part of the MVP): password recovery, notifications (push / ema
 
 ## Test Cases
 
-The full set of test cases lives in [`test-cases.md`](./test-cases.md) — one table per case (fields: User Story, Type, Preconditions, Steps, Expected result, Status; plus Actual result and Severity, filled on a failure). Coverage — all 5 epics, 71 cases:
+The full set of test cases lives in [`test-cases.md`](./test-cases.md) — one table per case (fields: User Story, Type, Preconditions, Steps, Expected result, Status; plus Actual result and Severity, filled on a failure). Coverage — all 5 epics, 74 cases:
 
 | Epic | Cases | Count | Edge / negative cases included |
 | --- | --- | --- | --- |
-| Auth (US-1.1–1.3) | TC-AUTH-01…11 | 11 | duplicate email, invalid format, short password, name-length bounds, generic login error, idempotent logout |
+| Auth (US-1.1–1.3) | TC-AUTH-01…12 | 12 | duplicate email, invalid format, short password, name-length bounds, generic login error, idempotent logout, session cookie 30-day expiry |
 | Profile (US-1.4–1.5) | TC-PROF-01…03 | 3 | empty / too-long name |
-| Household (US-2.1–2.5) | TC-HH-01…15 | 15 | create while already in a household, code permanence, 3 invalid-join cases, solo state, last-member deletion, auto-Unassign, "[former member]" |
-| Chores (US-3.1–3.8) | TC-CHORE-01…26 | 26 | end<start, missing Duty date, "No due date", past dates, Overdue, Pending confirmation, type lock, reopen, empty states/filters, sort order |
+| Household (US-2.1–2.5) | TC-HOUSE-01…16 | 16 | create while already in a household, code permanence, 3 invalid-join cases, solo state, last-member deletion, auto-Unassign, "[former member]", cross-household isolation |
+| Chores (US-3.1–3.8) | TC-CHORE-01…27 | 27 | end<start, missing Duty date, description >500, "No due date", past dates, Overdue, Pending confirmation, type lock, reopen, empty states/filters, sort order |
 | Issues (US-4.1–4.5) | TC-ISSUE-01…10 | 10 | field bounds, sort order, author-only buttons, edit resolved, empty filter |
 | Rules (US-5.1–5.3) | TC-RULE-01…06 | 6 | text bounds, last-modified-by, empty state |
-| **Total** | | **71** | |
+| **Total** | | **74** | |
+
+Issues cases (TC-ISSUE-*) are currently `Blocked` — the Issues API is not yet implemented.

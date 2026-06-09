@@ -4,7 +4,7 @@ Goes with [`test-plan.md`](./test-plan.md). Each case is one table. During a run
 
 - **Status:** `Not Run` / `Pass` / `Fail` / `Blocked`
 - **Type:** `Positive` (happy path) / `Negative` (invalid input rejected) / `Edge` (boundary / special state)
-- **ID:** `TC-<MODULE>-<NN>` — `AUTH`, `PROF`, `HH`, `CHORE`, `ISSUE`, `RULE`
+- **ID:** `TC-<MODULE>-<NN>` — `AUTH`, `PROF`, `HOUSE`, `CHORE`, `ISSUE`, `RULE`
 
 Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 
@@ -19,7 +19,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | User Story | US-1.1 |
 | Type | Positive |
 | Preconditions | Email `new@flat.com` is not registered |
-| Steps | 1. Open the registration form. 2. email = `new@flat.com`, name = `Anna`, password = `password123`. 3. Submit. |
+| Steps | 1. Open the registration form. 2. email = `new@flat.com`, name = `Anna`, password = `correct-horse-staple-7`. 3. Submit. |
 | Expected result | Account created, user logged in automatically, redirected to the Welcome screen (no household yet) |
 | Status | Not Run |
 | Actual result (if Fail) | |
@@ -46,7 +46,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Negative |
 | Preconditions | — |
 | Steps | 1. Open the registration form. 2. email = `not-an-email`, valid name and password. 3. Submit. |
-| Expected result | Submission rejected with a validation error (HTML5 `type="email"`); no account created |
+| Expected result | API returns HTTP 400 with an email-format validation error; no account created. (The same is enforced client-side by HTML5 `type="email"`.) |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -85,7 +85,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Positive |
 | Preconditions | Registered user who belongs to a household |
 | Steps | 1. Open login. 2. Enter valid email and password. 3. Submit. |
-| Expected result | Login succeeds; redirected to the chore list |
+| Expected result | Login succeeds (HTTP 200); response body has `has_household = true`. (The UI then routes to the chore list.) |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -98,7 +98,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Edge |
 | Preconditions | Registered user not in any household |
 | Steps | 1. Open login. 2. Enter valid email and password. 3. Submit. |
-| Expected result | Login succeeds; redirected to the Welcome screen with "Create household" and "Join household" actions |
+| Expected result | Login succeeds (HTTP 200); response body has `has_household = false`. (The UI then routes to the Welcome screen with "Create household" and "Join household" actions.) |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -111,7 +111,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Negative |
 | Preconditions | — |
 | Steps | 1. Open login. 2. Enter a valid email with a wrong password. 3. Submit. |
-| Expected result | Generic error **"Invalid email or password"** (does not reveal which field is wrong); not logged in |
+| Expected result | HTTP 401 with the generic error **"Invalid email or password"** (does not reveal which field is wrong); not logged in |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -137,7 +137,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Positive |
 | Preconditions | User is logged in |
 | Steps | 1. Click "Log out". 2. Try to open a protected page (e.g. chore list). |
-| Expected result | Session ends; protected page redirects to login |
+| Expected result | Logout returns HTTP 200; the session ends, so a subsequent request to a protected endpoint (e.g. profile) is rejected as unauthenticated. (The UI redirects to login.) |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -151,6 +151,19 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | Session already expired / ended |
 | Steps | 1. Trigger logout again. |
 | Expected result | No error shown; user ends on the login page |
+| Status | Not Run |
+| Actual result (if Fail) | |
+| Severity (if Fail) | |
+
+### TC-AUTH-12 — Session cookie expiry is set to 30 days
+
+| Field | Value |
+| --- | --- |
+| User Story | US-1.2 |
+| Type | Edge |
+| Preconditions | — |
+| Steps | 1. Log in. 2. Inspect the session `Set-Cookie` header in the login response (Swagger / browser devtools). |
+| Expected result | The session cookie is `HttpOnly` with `Max-Age` ≈ 2592000 s (30 days). Because `SESSION_SAVE_EVERY_REQUEST` is on, the window refreshes on each request (inactivity-based expiry). Full 30-day expiry behaviour is covered by config review plus an optional time-mocked automated test. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -202,7 +215,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 
 ## Epic 2 — Household Management
 
-### TC-HH-01 — Create a household with a valid name
+### TC-HOUSE-01 — Create a household with a valid name
 
 | Field | Value |
 | --- | --- |
@@ -215,7 +228,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-02 — Create a household with empty or too-long name
+### TC-HOUSE-02 — Create a household with empty or too-long name
 
 | Field | Value |
 | --- | --- |
@@ -228,7 +241,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-03 — Create a household while already a member of one
+### TC-HOUSE-03 — Create a household while already a member of one
 
 | Field | Value |
 | --- | --- |
@@ -236,12 +249,12 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Edge |
 | Preconditions | User already belongs to a household |
 | Steps | 1. Attempt to create a new household. |
-| Expected result | Action blocked with an error; user stays in their current household (a user can belong to at most one household) |
+| Expected result | HTTP 409 with **"You are already a member of a household. Leave it first to create a new one"**; user stays in their current household (a user can belong to at most one household) |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-04 — View and copy the invite code
+### TC-HOUSE-04 — View and copy the invite code
 
 | Field | Value |
 | --- | --- |
@@ -254,7 +267,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-05 — Invite code is permanent and not regenerated
+### TC-HOUSE-05 — Invite code is permanent and not regenerated
 
 | Field | Value |
 | --- | --- |
@@ -267,7 +280,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-06 — Join a household with a valid invite code
+### TC-HOUSE-06 — Join a household with a valid invite code
 
 | Field | Value |
 | --- | --- |
@@ -280,7 +293,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-07 — Join with a non-existent invite code
+### TC-HOUSE-07 — Join with a non-existent invite code
 
 | Field | Value |
 | --- | --- |
@@ -293,7 +306,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-08 — Join while already in a different household
+### TC-HOUSE-08 — Join while already in a different household
 
 | Field | Value |
 | --- | --- |
@@ -306,7 +319,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-09 — Join using own current household's code
+### TC-HOUSE-09 — Join using own current household's code
 
 | Field | Value |
 | --- | --- |
@@ -319,7 +332,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-10 — View household members
+### TC-HOUSE-10 — View household members
 
 | Field | Value |
 | --- | --- |
@@ -332,7 +345,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-11 — Member list, solo state
+### TC-HOUSE-11 — Member list, solo state
 
 | Field | Value |
 | --- | --- |
@@ -345,7 +358,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-12 — Leave a household (not the last member)
+### TC-HOUSE-12 — Leave a household (not the last member)
 
 | Field | Value |
 | --- | --- |
@@ -358,7 +371,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-13 — Last member leaving deletes the household
+### TC-HOUSE-13 — Last member leaving deletes the household
 
 | Field | Value |
 | --- | --- |
@@ -371,7 +384,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-14 — Leaving member's chores become Unassigned
+### TC-HOUSE-14 — Leaving member's chores become Unassigned
 
 | Field | Value |
 | --- | --- |
@@ -384,15 +397,28 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
-### TC-HH-15 — Former member's authorship is preserved
+### TC-HOUSE-15 — Former member's authorship is preserved
 
 | Field | Value |
 | --- | --- |
 | User Story | US-2.5 |
 | Type | Edge |
-| Preconditions | User authored an issue/rule and completed a chore, then left the household |
+| Preconditions | User authored a rule and completed a chore, then left the household (issues excluded — no API yet) |
 | Steps | 1. A remaining member views those items. |
 | Expected result | Authorship is preserved and shown as "[former member] Name" |
+| Status | Not Run |
+| Actual result (if Fail) | |
+| Severity (if Fail) | |
+
+### TC-HOUSE-16 — Household data isolation (cross-household access denied)
+
+| Field | Value |
+| --- | --- |
+| User Story | NFR-2 / System Constraint (household data only accessible to members) |
+| Type | Negative |
+| Preconditions | User is a member of household A; a chore with a known id exists in household B |
+| Steps | 1. As the household A member, request household B's chore by its id via the API. |
+| Expected result | HTTP 404; household B's data is not returned (a member cannot access another household's chores) |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -400,6 +426,8 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 ---
 
 ## Epic 3 — Chore Management
+
+> **Note on chore statuses:** "Overdue" and "Pending confirmation" are *derived display statuses* returned in the API `status` field, computed from the dates at read time. The persisted `stored_status` only ever holds `ACTIVE` or `COMPLETED`. When verifying via the API, read the `status` field (not `stored_status`).
 
 ### TC-CHORE-01 — Create a Task with a valid title
 
@@ -739,9 +767,24 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
+### TC-CHORE-27 — Create a chore with a description over 500 characters
+
+| Field | Value |
+| --- | --- |
+| User Story | US-3.1 |
+| Type | Negative |
+| Preconditions | User is a household member |
+| Steps | 1. New chore (Task or Duty). 2. title = `Clean`, description = 501 characters. 3. Save. |
+| Expected result | Rejected with a validation error (description 0–500 chars); chore not created |
+| Status | Not Run |
+| Actual result (if Fail) | |
+| Severity (if Fail) | |
+
 ---
 
 ## Epic 4 — Issue Tracker
+
+> **Note:** the Issues API is not yet implemented (the `issues` app currently has only a model). All cases below are `Blocked` until the API is merged.
 
 ### TC-ISSUE-01 — Create an issue with valid data
 
@@ -752,7 +795,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | User is a household member |
 | Steps | 1. New issue. 2. title = `Leaking tap`, description = `Kitchen tap drips`. 3. Save. |
 | Expected result | Issue appears in the list with status "open", the author's name and the creation date |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -765,7 +808,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | User is a household member |
 | Steps | 1. Save with empty title. 2. Save with empty description. |
 | Expected result | Both rejected with an error (title 1–80, description 1–1000 required) |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -778,7 +821,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | Household has open and resolved issues |
 | Steps | 1. Open the Issues page. |
 | Expected result | All issues show title, author, status and creation date; sort is Open first then Resolved, newest first within each group |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -791,7 +834,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | Household has no issues |
 | Steps | 1. Open the Issues page. |
 | Expected result | Shows "No issues reported — your household is running smoothly!" with a "+ Report issue" CTA |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -804,7 +847,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | An open issue exists |
 | Steps | 1. Change status to "resolved". 2. Change it back to "open". |
 | Expected result | Any member can toggle; the updated status is visible to all members immediately |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -817,7 +860,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | User is the author of an issue |
 | Steps | 1. Edit the issue and save. 2. Delete it and confirm. |
 | Expected result | Author can edit; delete requires a confirmation dialog and removes the issue |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -830,7 +873,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | An issue authored by another member |
 | Steps | 1. As a different member, open that issue. |
 | Expected result | Edit and Delete buttons are not visible at all to non-authors (not merely disabled) |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -843,7 +886,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | User authored an issue now marked "resolved" |
 | Steps | 1. Edit the resolved issue. 2. Delete it. |
 | Expected result | Author can still edit and delete a resolved issue |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -856,7 +899,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | Household has open and resolved issues |
 | Steps | 1. Set the status filter to "open", then "resolved", then "all". |
 | Expected result | The list shows only issues matching the selected status |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -869,7 +912,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Preconditions | No issue matches the selected status |
 | Steps | 1. Select a status with no matching issues. |
 | Expected result | Shows "No issues match this filter — try a different status" |
-| Status | Not Run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
