@@ -1,0 +1,183 @@
+import { useState } from 'react'
+import {
+  apiUsersCreate,
+  apiUsersCsrfRetrieve,
+} from '../api/generated/users/users'
+import type { AuthState } from '../api/generated/flatFlowAPI.schemas'
+import { Button } from '../components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+
+type SignUpPageProps = {
+  onAuthenticated?: (auth: AuthState) => void
+  onHaveAccount?: () => void
+}
+
+type ApiErrorBody = {
+  detail?: string
+  email?: string[]
+  password?: string[]
+  display_name?: string[]
+}
+
+type SignUpResponse = {
+  data: unknown
+  status: number
+}
+
+function getSignUpErrorMessage(data: unknown, status?: number) {
+  const body = data && typeof data === 'object' ? (data as ApiErrorBody) : null
+
+  if (body?.email?.[0]) {
+    return body.email[0]
+  }
+
+  if (body?.password?.[0]) {
+    return body.password[0]
+  }
+
+  if (body?.display_name?.[0]) {
+    return body.display_name[0]
+  }
+
+  if (body?.detail) {
+    return body.detail
+  }
+
+  if (status === 403) {
+    return 'Could not verify the session. Refresh the page and try again.'
+  }
+
+  return 'Could not create an account. Please try again.'
+}
+
+export default function SignUpPage({
+  onAuthenticated,
+  onHaveAccount,
+}: SignUpPageProps) {
+  const [displayName, setDisplayName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function submitSignUp() {
+    let res: SignUpResponse = await apiUsersCreate({
+      email,
+      display_name: displayName,
+      password,
+    })
+
+    if (res.status === 403) {
+      await apiUsersCsrfRetrieve()
+      res = await apiUsersCreate({
+        email,
+        display_name: displayName,
+        password,
+      })
+    }
+
+    return res
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setError(null)
+    setLoading(true)
+
+    try {
+      await apiUsersCsrfRetrieve()
+      const res = await submitSignUp()
+
+      if (res.status === 201) {
+        onAuthenticated?.(res.data as AuthState)
+        return
+      }
+
+      setError(getSignUpErrorMessage(res.data, res.status))
+    } catch {
+      setError('Could not create an account. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen border border-[#0b0a0f] bg-[#fffef7] text-[#0b0a0f]">
+      <div className="absolute inset-x-0 top-0 h-1/2 bg-[#fdd329]" />
+
+      <main className="relative z-10 flex min-h-screen flex-col items-center px-[24px] pt-[18.5vh]">
+        <div className="mb-[35px] text-[30px] font-semibold leading-tight">
+          FlatFlow
+        </div>
+
+        <Card className="w-full max-w-[548px] px-[51px] pb-[36px] pt-[36px] shadow-none max-sm:px-[28px]">
+          <CardHeader className="mb-[28px]">
+            <CardTitle>Sign up</CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit} className="flex flex-col">
+              <div className="space-y-[14px]">
+                <Label htmlFor="signup-name">Name</Label>
+                <Input
+                  id="signup-name"
+                  type="text"
+                  autoComplete="name"
+                  value={displayName}
+                  onChange={(event) => setDisplayName(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="mt-[26px] space-y-[14px]">
+                <Label htmlFor="signup-email">Email</Label>
+                <Input
+                  id="signup-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="mt-[26px] space-y-[14px]">
+                <Label htmlFor="signup-password">Password</Label>
+                <Input
+                  id="signup-password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+              </div>
+
+              {error && (
+                <p className="mt-[16px] text-center text-[14px] font-medium text-[#cb322d]">
+                  {error}
+                </p>
+              )}
+
+              <div className="mt-[60px] flex justify-center">
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Creating...' : 'Create'}
+                </Button>
+              </div>
+
+              <Button
+                variant="ghost"
+                className="mx-auto mt-[27px]"
+                onClick={onHaveAccount}
+              >
+                I have an account
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  )
+}
