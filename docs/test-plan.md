@@ -1,6 +1,6 @@
 # FlatFlow — Test Plan
 
-Verifies the MVP before Code Freeze: find, document and prioritise defects against written test cases. Bugs are tracked as cards on the Kanban board (GitHub Issues labelled `bug`): `<link>`.
+Verifies the MVP before Code Freeze: find, document and prioritise defects against written test cases. Bugs are tracked as cards on the [Kanban board](https://github.com/users/anastasiaaq/projects/1/views/1) (GitHub Issues labelled `bug`).
 
 ## Scope
 

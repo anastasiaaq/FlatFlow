@@ -5,6 +5,7 @@ Goes with [`test-plan.md`](./test-plan.md). Each case is one table. During a run
 - **Status:** `Not Run` / `Pass` / `Fail` / `Blocked`
 - **Type:** `Positive` (happy path) / `Negative` (invalid input rejected) / `Edge` (boundary / special state)
 - **ID:** `TC-<MODULE>-<NN>` — `AUTH`, `PROF`, `HOUSE`, `CHORE`, `ISSUE`, `RULE`
+- **API (now) / UI (deferred):** where an outcome spans both surfaces, the Expected result is split into `API (now)` (verified via Swagger today) and `UI (deferred)` (verified once the frontend exists). The case `Status` tracks the API part until the UI is available.
 
 Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 
@@ -20,7 +21,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Positive |
 | Preconditions | Email `new@flat.com` is not registered |
 | Steps | 1. Open the registration form. 2. email = `new@flat.com`, name = `Anna`, password = `correct-horse-staple-7`. 3. Submit. |
-| Expected result | Account created, user logged in automatically, redirected to the Welcome screen (no household yet) |
+| Expected result | **API (now):** account created (HTTP 201), session established, `has_household = false`. **UI (deferred):** user is auto-logged-in and routed to the Welcome screen. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -46,7 +47,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Negative |
 | Preconditions | — |
 | Steps | 1. Open the registration form. 2. email = `not-an-email`, valid name and password. 3. Submit. |
-| Expected result | API returns HTTP 400 with an email-format validation error; no account created. (The same is enforced client-side by HTML5 `type="email"`.) |
+| Expected result | **API (now):** HTTP 400 with an email-format validation error; no account created. **UI (deferred):** HTML5 `type="email"` blocks the submit client-side. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -85,7 +86,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Positive |
 | Preconditions | Registered user who belongs to a household |
 | Steps | 1. Open login. 2. Enter valid email and password. 3. Submit. |
-| Expected result | Login succeeds (HTTP 200); response body has `has_household = true`. (The UI then routes to the chore list.) |
+| Expected result | **API (now):** login succeeds (HTTP 200), `has_household = true`. **UI (deferred):** routed to the chore list. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -98,7 +99,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Edge |
 | Preconditions | Registered user not in any household |
 | Steps | 1. Open login. 2. Enter valid email and password. 3. Submit. |
-| Expected result | Login succeeds (HTTP 200); response body has `has_household = false`. (The UI then routes to the Welcome screen with "Create household" and "Join household" actions.) |
+| Expected result | **API (now):** login succeeds (HTTP 200), `has_household = false`. **UI (deferred):** routed to the Welcome screen with "Create household" / "Join household" actions. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -124,7 +125,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Positive |
 | Preconditions | User is logged in |
 | Steps | 1. Reload the page. |
-| Expected result | User remains logged in (session persists) |
+| Expected result | **API (now):** the existing session cookie still authenticates a follow-up request. **UI (deferred):** user stays logged in after a page reload. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -137,7 +138,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Positive |
 | Preconditions | User is logged in |
 | Steps | 1. Click "Log out". 2. Try to open a protected page (e.g. chore list). |
-| Expected result | Logout returns HTTP 200; the session ends, so a subsequent request to a protected endpoint (e.g. profile) is rejected as unauthenticated. (The UI redirects to login.) |
+| Expected result | **API (now):** logout returns HTTP 200; a subsequent request to a protected endpoint (e.g. profile) is rejected as unauthenticated. **UI (deferred):** redirect to login. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -150,7 +151,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Edge |
 | Preconditions | Session already expired / ended |
 | Steps | 1. Trigger logout again. |
-| Expected result | No error shown; user ends on the login page |
+| Expected result | **API (now):** repeating logout on an ended session returns HTTP 200 with no error (idempotent). **UI (deferred):** user ends on the login page. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -180,7 +181,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Positive |
 | Preconditions | User is logged in |
 | Steps | 1. Open the profile page. |
-| Expected result | Profile shows the current user's display name and email |
+| Expected result | **API (now):** the profile endpoint returns the current user's display name and email. **UI (deferred):** the profile page displays them. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -193,7 +194,7 @@ Acceptance criteria source: [`user-stories.md`](./user-stories.md).
 | Type | Positive |
 | Preconditions | User is logged in and is a member of a household |
 | Steps | 1. Open profile. 2. Click "Edit name". 3. Enter `Anna B.`. 4. Save. |
-| Expected result | Name updated and reflected everywhere the user appears (member list, chore assignee, "marked done by", issue author, rule author) |
+| Expected result | **API (now):** name updated (HTTP 200) and returned by the profile endpoint. **UI (deferred):** new name reflected wherever the user appears (member list, chore assignee, "marked done by", issue/rule author). |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
