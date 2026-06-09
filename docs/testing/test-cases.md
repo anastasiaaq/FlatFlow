@@ -5,7 +5,7 @@ Goes with [`test-plan.md`](./test-plan.md). Each case is one table. During a run
 - **Status:** `Not Run` / `Pass` / `Fail` / `Blocked`
 - **Type:** `Positive` (happy path) / `Negative` (invalid input rejected) / `Edge` (boundary / special state)
 - **ID:** `TC-<MODULE>-<NN>` — `AUTH`, `PROF`, `HOUSE`, `CHORE`, `ISSUE`, `RULE`
-- **API (now) / UI (deferred):** where an outcome spans both surfaces, the Expected result is split into `API (now)` (verified via Swagger today) and `UI (deferred)` (verified once the frontend exists). The case `Status` tracks the API part until the UI is available.
+- **Execution surface:** pure API-verifiable outcomes state the assertion directly (run via Swagger now). Pure UI-only outcomes (rendering, dialogs, button visibility, empty-state copy, clipboard) are tagged `UI (deferred)` and their `Status` is `Blocked` until the frontend exists. Mixed outcomes are split into `API (now)` / `UI (deferred)`, with `Status` tracking the API part.
 
 Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 
@@ -192,7 +192,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | --- | --- |
 | User Story | US-1.5 |
 | Type | Positive |
-| Preconditions | User is logged in and is a member of a household |
+| Preconditions | User is logged in |
 | Steps | 1. Open profile. 2. Click "Edit name". 3. Enter `Anna B.`. 4. Save. |
 | Expected result | **API (now):** name updated (HTTP 200) and returned by the profile endpoint. **UI (deferred):** new name reflected wherever the user appears (member list, chore assignee, "marked done by", issue/rule author). |
 | Status | Not Run |
@@ -224,7 +224,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | Registered user not in any household |
 | Steps | 1. Open "Create household". 2. name = `Flat 12`. 3. Submit. |
-| Expected result | User becomes the only member; household name shown on home page; an invite code is generated automatically; "Created by … " attribution is shown (display-only) |
+| Expected result | **API (now):** create returns HTTP 201; the user is the only member, an invite code is generated automatically, and `created_by` (display-only) is the user. **UI (deferred):** the household name and "Created by …" attribution are shown on the home page. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -263,7 +263,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is a household member |
 | Steps | 1. Open the household page. 2. Click the copy button next to the invite code. |
-| Expected result | Invite code is visible; one click copies it to the clipboard |
+| Expected result | **API (now):** the invite code is present/returned to the member. **UI (deferred):** one click copies it to the clipboard. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -289,7 +289,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is logged in and not in a household; a valid code exists |
 | Steps | 1. Open "Join household". 2. Enter the valid code. 3. Confirm. |
-| Expected result | User becomes a member; the household appears on their home page |
+| Expected result | **API (now):** user becomes a member (membership persisted, household returned). **UI (deferred):** the household appears on their home page. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -341,7 +341,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | Household has 2+ members |
 | Steps | 1. Open the household page. |
-| Expected result | A list of all members with their display names is shown |
+| Expected result | **API (now):** GET `/households/current` returns the household with its `members` array (all members' display names). **UI (deferred):** the list is shown on the household page. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -354,7 +354,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | User is the only member |
 | Steps | 1. Open the household page. |
-| Expected result | Shows "You're the only one here yet — share your invite code to bring roommates in" with a shortcut to the invite code |
+| Expected result | **API (now):** GET `/households/current` returns a `members` array containing only the current user. **UI (deferred):** shows "You're the only one here yet — share your invite code to bring roommates in" with a shortcut to the invite code. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -367,7 +367,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is a member of a household with other members |
 | Steps | 1. Click "Leave household". 2. Confirm in the prompt. |
-| Expected result | After leaving, the user no longer sees the household's data; remaining members see the updated member list |
+| Expected result | **API (now):** after leaving, the user's membership is removed and the member list updates (re-fetch confirms the user no longer sees the household's data). **UI (deferred):** a confirmation prompt is shown before leaving. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -380,7 +380,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | User is the only member; household has chores/issues/rules |
 | Steps | 1. Click "Leave household". 2. Read the warning. 3. Confirm. |
-| Expected result | User is warned data will be deleted; on confirm the household and all its data (chores, issues, rules) are deleted |
+| Expected result | **API (now):** on confirm the household and all its data (chores, issues, rules) are deleted. **UI (deferred):** the user is warned data will be deleted before confirming. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -438,7 +438,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is a household member |
 | Steps | 1. New chore. 2. type = Task, title = `Buy detergent`. 3. Save (no due date). |
-| Expected result | Task is created and appears in the chore list and on the calendar for all members |
+| Expected result | **API (now):** the Task is created and returned. **UI (deferred):** it appears in the chore list and on the calendar for all members. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -451,7 +451,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is a household member |
 | Steps | 1. New chore. 2. type = Duty, title = `Dishes`, start = today, end = today+6. 3. Save. |
-| Expected result | Duty is created and appears in the list and on the calendar as a multi-day item |
+| Expected result | **API (now):** the Duty is created and returned. **UI (deferred):** it appears in the list and on the calendar as a multi-day item. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -516,7 +516,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | Household has 2+ members; a chore exists |
 | Steps | 1. Edit the chore. 2. Set assignee to `Bob`. 3. Save. 4. As Bob, apply the "me" filter. |
-| Expected result | Bob sees the chore highlighted as "mine" on the personal filter |
+| Expected result | **API (now):** the assignee (Bob) is persisted and the chore is returned by the "me" filter for that user. **UI (deferred):** it is visually highlighted as "mine". |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -542,7 +542,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | A Task without a due date exists |
 | Steps | 1. Open the chore list / calendar. |
-| Expected result | The Task is grouped under "No due date" in the list and shown in the separate panel next to the calendar |
+| Expected result | **API (now):** the Task is returned with no due date (in the "No due date" grouping). **UI (deferred):** shown in the separate "No due date" panel next to the calendar. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -568,7 +568,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | A Task with a past due date that is not Done |
 | Steps | 1. Open the chore list. |
-| Expected result | The Task is marked "Overdue" with a distinct style and sorted first |
+| Expected result | **API (now):** the Task's `status` is `OVERDUE` and it is sorted first in the returned list. **UI (deferred):** distinct "Overdue" visual style. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -581,7 +581,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | A Task exists; user is any household member (need not be assignee) |
 | Steps | 1. Click "Done" on the Task. |
-| Expected result | Status becomes "Completed", the chore is visually distinct, and the system records who marked it and when (shown in list and detail) |
+| Expected result | **API (now):** `status` becomes COMPLETED and completed-by/at are recorded and returned. **UI (deferred):** the chore is visually distinct. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -594,7 +594,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | A Duty whose period includes today |
 | Steps | 1. Click "Mark complete". |
-| Expected result | Status becomes "Completed"; who/when is recorded and displayed |
+| Expected result | **API (now):** `status` becomes COMPLETED and completed-by/at are recorded and returned. **UI (deferred):** the completion (who/when) is shown in the list and detail. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -607,7 +607,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | A Duty whose start date is in the future |
 | Steps | 1. Open the Duty. |
-| Expected result | The "Mark complete" action is not available before the start date |
+| Expected result | **API (now):** POST complete on a not-yet-started Duty returns HTTP 400 ("Duties can only be completed from their start date onward"); the Duty stays ACTIVE. **UI (deferred):** the "Mark complete" control is not available before the start date. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -633,7 +633,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | A Completed chore exists |
 | Steps | 1. Edit the chore. 2. Change status to Active. 3. Save. |
-| Expected result | The chore returns to Active and is shown accordingly |
+| Expected result | **API (now):** editing the status field sets it back to ACTIVE (confirmed on re-fetch). **UI (deferred):** the chore is shown as Active again. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -646,7 +646,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | Household has a mix of overdue tasks, pending-confirmation duties, current duties, upcoming items and completed items |
 | Steps | 1. Open the chore list. |
-| Expected result | All chores show title, type, assignee, dates and status; sort order is: overdue Tasks → Duties Pending confirmation → current Duties → upcoming by date → completed Tasks and confirmed past Duties at the bottom |
+| Expected result | **API (now):** all chores are returned with title, type, assignee, dates and status, in the sort order: overdue Tasks → Duties Pending confirmation → current Duties → upcoming by date → completed Tasks and confirmed past Duties at the bottom. **UI (deferred):** completed Tasks and confirmed past Duties are shown muted/distinct. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -659,7 +659,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | Household has no chores |
 | Steps | 1. Open the chore list. |
-| Expected result | Shows "No chores yet — create your first chore" with a "+ New chore" CTA |
+| Expected result | **API (now):** the chores list is empty. **UI (deferred):** shows "No chores yet — create your first chore" with a "+ New chore" CTA. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -672,8 +672,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | A Task with a due date and a multi-day Duty exist in the visible month |
 | Steps | 1. Open the calendar (Month view). |
-| Expected result | The Task appears as a chip in its day cell; the Duty appears as a multi-day bar spanning its range; today is highlighted; month navigation works |
-| Status | Not Run |
+| Expected result | **UI (deferred):** the Task appears as a chip in its day cell; the Duty appears as a multi-day bar spanning its range; today is highlighted; month navigation works. |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -685,8 +685,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | A chore exists in the visible month |
 | Steps | 1. Click a chore. 2. Click an empty day cell. |
-| Expected result | Clicking a chore opens its detail/modal; clicking an empty day opens "+ New chore" pre-filled with that date |
-| Status | Not Run |
+| Expected result | **UI (deferred):** clicking a chore opens its detail/modal; clicking an empty day opens "+ New chore" pre-filled with that date. |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -698,8 +698,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | Visible month has no chores |
 | Steps | 1. Navigate to a month with no chores. |
-| Expected result | Calendar shows "No chores scheduled for this period" |
-| Status | Not Run |
+| Expected result | **UI (deferred):** calendar shows "No chores scheduled for this period". |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -711,7 +711,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | A chore created by another member exists |
 | Steps | 1. Open the chore. 2. Change title/description/assignee/dates/status. 3. Save. |
-| Expected result | Any member can edit; changes are visible to all members immediately |
+| Expected result | **API (now):** any member can edit; the update persists and is returned to any member's fetch. **UI (deferred):** changes are reflected for all members without a refresh. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -737,7 +737,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | A chore exists |
 | Steps | 1. Click delete. 2. Confirm in the dialog. |
-| Expected result | A confirmation dialog appears; after confirming, the chore disappears from both the list and the calendar for all members |
+| Expected result | **API (now):** the chore is removed (gone from the list and calendar data for all members). **UI (deferred):** a confirmation dialog is shown before deletion. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -750,7 +750,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | Household has chores of various assignees and statuses |
 | Steps | 1. Set assignee = "me". 2. Set status = "active". |
-| Expected result | List updates instantly to show only the current user's active chores; filters combine correctly |
+| Expected result | **API (now):** the filtered query returns only the current user's active chores; combined filters apply correctly. **UI (deferred):** the list updates instantly as filters change. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -763,7 +763,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | No chore matches the chosen filters |
 | Steps | 1. Apply a filter combination that matches nothing. |
-| Expected result | Shows "No chores match these filters" with a "Clear filters" button |
+| Expected result | **API (now):** the filtered result is empty. **UI (deferred):** shows "No chores match these filters" with a "Clear filters" button. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -795,7 +795,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is a household member |
 | Steps | 1. New issue. 2. title = `Leaking tap`, description = `Kitchen tap drips`. 3. Save. |
-| Expected result | Issue appears in the list with status "open", the author's name and the creation date |
+| Expected result | **API (now):** the issue is created with status "open", the author's name and the creation date. **UI (deferred):** it appears in the list. |
 | Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -821,7 +821,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | Household has open and resolved issues |
 | Steps | 1. Open the Issues page. |
-| Expected result | All issues show title, author, status and creation date; sort is Open first then Resolved, newest first within each group |
+| Expected result | **API (now):** issues are returned with title, author, status and creation date, sorted Open first then Resolved, newest first within each group. **UI (deferred):** the list is shown. |
 | Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -834,7 +834,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | Household has no issues |
 | Steps | 1. Open the Issues page. |
-| Expected result | Shows "No issues reported — your household is running smoothly!" with a "+ Report issue" CTA |
+| Expected result | **API (now):** the issues list is empty. **UI (deferred):** shows "No issues reported — your household is running smoothly!" with a "+ Report issue" CTA. |
 | Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -860,7 +860,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is the author of an issue |
 | Steps | 1. Edit the issue and save. 2. Delete it and confirm. |
-| Expected result | Author can edit; delete requires a confirmation dialog and removes the issue |
+| Expected result | **API (now):** the author can edit (200) and delete the issue. **UI (deferred):** delete shows a confirmation dialog. |
 | Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -873,7 +873,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | An issue authored by another member |
 | Steps | 1. As a different member, open that issue. |
-| Expected result | Edit and Delete buttons are not visible at all to non-authors (not merely disabled) |
+| Expected result | **API (now):** a non-author edit/delete request is rejected (403). **UI (deferred):** the Edit/Delete buttons are not visible at all to non-authors (not merely disabled). |
 | Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -912,7 +912,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | No issue matches the selected status |
 | Steps | 1. Select a status with no matching issues. |
-| Expected result | Shows "No issues match this filter — try a different status" |
+| Expected result | **API (now):** the filtered result is empty. **UI (deferred):** shows "No issues match this filter — try a different status". |
 | Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -929,7 +929,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is a household member |
 | Steps | 1. New rule. 2. text = `No noise after 23:00`. 3. Save. |
-| Expected result | Rule appears in the shared list, visible to all members, with its author and creation date recorded |
+| Expected result | **API (now):** the rule is created and returned in the shared list with its author and creation date. **UI (deferred):** it appears in the list for all members. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -955,7 +955,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | Household has several rules, one edited by a different member than its author |
 | Steps | 1. Open the Rules page. |
-| Expected result | Rules shown in chronological order (newest at the bottom); each shows text, author, last-modified date, and last-modified-by (when different from the author) |
+| Expected result | **API (now):** rules are returned in chronological order (newest at the bottom); each includes text, author (`created_by`), `last_modified_at`, and `last_modified_by`. **UI (deferred):** last-modified-by is displayed only when it differs from the author. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -968,7 +968,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | Household has no rules |
 | Steps | 1. Open the Rules page. |
-| Expected result | Shows "No house rules yet — add your first agreement" with a "+ New rule" CTA |
+| Expected result | **API (now):** the rules list is empty. **UI (deferred):** shows "No house rules yet — add your first agreement" with a "+ New rule" CTA. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -981,7 +981,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | A rule authored by another member exists |
 | Steps | 1. Edit the rule text. 2. Save. |
-| Expected result | Any member can edit; the last-modified date and last-modified-by are updated and shown to all members |
+| Expected result | **API (now):** any member can edit; `last_modified_at` and `last_modified_by` are updated and returned. **UI (deferred):** the change is shown to all members. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
@@ -994,7 +994,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | A rule exists |
 | Steps | 1. Click delete. 2. Confirm in the dialog. |
-| Expected result | A confirmation dialog appears; after confirming, the rule is removed for all members |
+| Expected result | **API (now):** the rule is removed for all members. **UI (deferred):** a confirmation dialog is shown before deletion. |
 | Status | Not Run |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |

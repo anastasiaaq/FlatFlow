@@ -11,7 +11,7 @@ In scope:
 | Registration & Auth | US-1.1 – US-1.3 | API (Swagger) |
 | User Profile | US-1.4 – US-1.5 | API (Swagger) |
 | Household | US-2.1 – US-2.5 | API (Swagger) |
-| Chores (Task / Duty) | US-3.1 – US-3.8 | API (Swagger) |
+| Chores (Task / Duty) | US-3.1 – US-3.8 | API (Swagger); US-3.6 calendar is browser-only (deferred) |
 | Issue tracker | US-4.1 – US-4.5 | API (Swagger), once `issues` API is merged |
 | House rules | US-5.1 – US-5.3 | API (Swagger) |
 
