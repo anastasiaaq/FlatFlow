@@ -8,6 +8,12 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
+import {
+  hasErrors,
+  validateLoginForm,
+  type FieldErrors,
+  type LoginFields,
+} from '../auth/validation'
 
 type LoginPageProps = {
   onAuthenticated?: (auth: AuthState) => void
@@ -52,19 +58,30 @@ export default function LoginPage({
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors<LoginFields>>({})
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
+    const validationErrors = validateLoginForm({ email, password })
+    setFieldErrors(validationErrors)
+
+    if (hasErrors(validationErrors)) {
+      return
+    }
+
     setLoading(true)
 
     try {
       await apiUsersCsrfRetrieve()
-      let res: LoginResponse = await apiUsersLoginCreate({ email, password })
+      let res: LoginResponse = await apiUsersLoginCreate({
+        email: email.trim(),
+        password,
+      })
 
       if (res.status === 403) {
         await apiUsersCsrfRetrieve()
-        res = await apiUsersLoginCreate({ email, password })
+        res = await apiUsersLoginCreate({ email: email.trim(), password })
       }
 
       if (res.status === 200) {
@@ -104,8 +121,17 @@ export default function LoginPage({
                   autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
+                  aria-invalid={fieldErrors.email ? 'true' : 'false'}
+                  aria-describedby={
+                    fieldErrors.email ? 'email-error' : undefined
+                  }
                   required
                 />
+                {fieldErrors.email && (
+                  <p id="email-error" className="text-[14px] text-[#cb322d]">
+                    {fieldErrors.email}
+                  </p>
+                )}
               </div>
 
               <div className="mt-[26px] space-y-[14px]">
@@ -116,8 +142,17 @@ export default function LoginPage({
                   autoComplete="current-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  aria-invalid={fieldErrors.password ? 'true' : 'false'}
+                  aria-describedby={
+                    fieldErrors.password ? 'password-error' : undefined
+                  }
                   required
                 />
+                {fieldErrors.password && (
+                  <p id="password-error" className="text-[14px] text-[#cb322d]">
+                    {fieldErrors.password}
+                  </p>
+                )}
               </div>
 
               {error && (

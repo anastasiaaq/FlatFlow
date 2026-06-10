@@ -2,12 +2,14 @@ type NavbarProps = {
   householdName?: string
   userName?: string
   activePage?: 'household' | 'rules' | 'chores' | 'issues'
+  onLogout?: () => void
 }
 
 export default function Navbar({
   householdName,
   userName,
   activePage = 'household',
+  onLogout,
 }: NavbarProps) {
   const navItems = [
     { key: 'household', label: 'Household' },
@@ -44,6 +46,14 @@ export default function Navbar({
         <svg width="16" height="7" viewBox="0 0 16 7" fill="none">
           <path d="M1 1L8 6L15 1" stroke="#0b0a0f" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="ml-[10px] rounded-[7px] border border-[#0b0a0f] px-[10px] py-[4px] text-[16px] font-semibold hover:opacity-70"
+          >
+            Log out
+          </button>
+        )}
       </div>
     </header>
   )

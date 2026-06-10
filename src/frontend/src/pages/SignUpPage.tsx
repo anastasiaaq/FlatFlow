@@ -8,6 +8,12 @@ import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
+import {
+  hasErrors,
+  validateSignUpForm,
+  type FieldErrors,
+  type SignUpFields,
+} from '../auth/validation'
 
 type SignUpPageProps = {
   onAuthenticated?: (auth: AuthState) => void
@@ -61,6 +67,7 @@ export default function SignUpPage({
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors<SignUpFields>>({})
 
   async function submitSignUp() {
     let res: SignUpResponse = await apiUsersCreate({
@@ -84,6 +91,17 @@ export default function SignUpPage({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
+    const validationErrors = validateSignUpForm({
+      displayName,
+      email,
+      password,
+    })
+    setFieldErrors(validationErrors)
+
+    if (hasErrors(validationErrors)) {
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -127,8 +145,20 @@ export default function SignUpPage({
                   autoComplete="name"
                   value={displayName}
                   onChange={(event) => setDisplayName(event.target.value)}
+                  aria-invalid={fieldErrors.displayName ? 'true' : 'false'}
+                  aria-describedby={
+                    fieldErrors.displayName ? 'signup-name-error' : undefined
+                  }
                   required
                 />
+                {fieldErrors.displayName && (
+                  <p
+                    id="signup-name-error"
+                    className="text-[14px] text-[#cb322d]"
+                  >
+                    {fieldErrors.displayName}
+                  </p>
+                )}
               </div>
 
               <div className="mt-[26px] space-y-[14px]">
@@ -139,8 +169,20 @@ export default function SignUpPage({
                   autoComplete="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
+                  aria-invalid={fieldErrors.email ? 'true' : 'false'}
+                  aria-describedby={
+                    fieldErrors.email ? 'signup-email-error' : undefined
+                  }
                   required
                 />
+                {fieldErrors.email && (
+                  <p
+                    id="signup-email-error"
+                    className="text-[14px] text-[#cb322d]"
+                  >
+                    {fieldErrors.email}
+                  </p>
+                )}
               </div>
 
               <div className="mt-[26px] space-y-[14px]">
@@ -151,8 +193,20 @@ export default function SignUpPage({
                   autoComplete="new-password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  aria-invalid={fieldErrors.password ? 'true' : 'false'}
+                  aria-describedby={
+                    fieldErrors.password ? 'signup-password-error' : undefined
+                  }
                   required
                 />
+                {fieldErrors.password && (
+                  <p
+                    id="signup-password-error"
+                    className="text-[14px] text-[#cb322d]"
+                  >
+                    {fieldErrors.password}
+                  </p>
+                )}
               </div>
 
               {error && (

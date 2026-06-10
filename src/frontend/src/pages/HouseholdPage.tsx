@@ -5,9 +5,10 @@ import type { HouseholdDetail } from '../api/generated/flatFlowAPI.schemas'
 
 type Props = {
   currentUserId?: number
+  onLogout?: () => void
 }
 
-export default function HouseholdPage({ currentUserId }: Props) {
+export default function HouseholdPage({ currentUserId, onLogout }: Props) {
   const [household, setHousehold] = useState<HouseholdDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -66,6 +67,7 @@ export default function HouseholdPage({ currentUserId }: Props) {
         householdName={household?.name}
         userName={currentMember?.display_name}
         activePage="household"
+        onLogout={onLogout}
       />
 
       <main className="flex-1 px-[154px] pt-[47px] pb-[80px]">
