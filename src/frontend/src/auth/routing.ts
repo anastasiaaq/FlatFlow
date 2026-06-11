@@ -10,10 +10,16 @@ export const routePaths: Record<AppRoute, string> = {
 }
 
 export function getRouteFromPath(pathname: string): AppRoute {
-  if (pathname.startsWith(routePaths.signup)) return 'signup'
-  if (pathname.startsWith(routePaths.householdSetup)) return 'householdSetup'
-  if (pathname.startsWith(routePaths.household)) return 'household'
+  if (matchesRoutePath(pathname, routePaths.signup)) return 'signup'
+  if (matchesRoutePath(pathname, routePaths.householdSetup)) {
+    return 'householdSetup'
+  }
+  if (matchesRoutePath(pathname, routePaths.household)) return 'household'
   return 'login'
+}
+
+function matchesRoutePath(pathname: string, routePath: string) {
+  return pathname === routePath || pathname.startsWith(`${routePath}/`)
 }
 
 export function isProtectedRoute(route: AppRoute) {

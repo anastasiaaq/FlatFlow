@@ -67,6 +67,7 @@ function App() {
 
     if (redirectRoute) {
       window.history.replaceState(null, '', routePaths[redirectRoute])
+      queueMicrotask(() => setRoute(redirectRoute))
     }
   }, [auth, initializing, route])
 
@@ -114,6 +115,7 @@ function App() {
     return (
       <HouseholdPage
         currentUserId={auth?.user?.id}
+        currentUserName={auth?.user?.display_name}
         onLogout={handleLogout}
       />
     )
@@ -124,6 +126,7 @@ function App() {
       <HouseholdSetupPage
         onHouseholdReady={handleHouseholdReady}
         onLogout={handleLogout}
+        userName={auth?.user?.display_name}
       />
     )
   }

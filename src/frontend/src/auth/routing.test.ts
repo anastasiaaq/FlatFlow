@@ -27,8 +27,10 @@ const userWithHousehold: AuthState = {
 describe('auth routing', () => {
   it('maps browser paths to app routes', () => {
     expect(getRouteFromPath('/signup')).toBe('signup')
+    expect(getRouteFromPath('/signup/welcome')).toBe('signup')
     expect(getRouteFromPath('/household/setup')).toBe('householdSetup')
     expect(getRouteFromPath('/household')).toBe('household')
+    expect(getRouteFromPath('/householding')).toBe('login')
     expect(getRouteFromPath('/unknown')).toBe('login')
   })
 
