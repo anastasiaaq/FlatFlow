@@ -1,20 +1,24 @@
+type Page = 'household' | 'rules' | 'chores' | 'issues'
+
 type NavbarProps = {
   householdName?: string
   userName?: string
-  activePage?: 'household' | 'rules' | 'chores' | 'issues'
+  activePage?: Page
+  onNavigate?: (page: Page) => void
 }
 
 export default function Navbar({
   householdName,
   userName,
   activePage = 'household',
+  onNavigate,
 }: NavbarProps) {
-  const navItems = [
+  const navItems: { key: Page; label: string }[] = [
     { key: 'household', label: 'Household' },
     { key: 'rules', label: 'Rules' },
     { key: 'chores', label: 'Chores' },
     { key: 'issues', label: 'Issues' },
-  ] as const
+  ]
 
   return (
     <header className="w-full h-[90px] bg-[#fdd329] flex items-center px-[154px] shrink-0">
@@ -24,17 +28,23 @@ export default function Navbar({
 
       <nav className="flex items-center gap-[50px] flex-1">
         {navItems.map(({ key, label }) => (
-          <a
+          <button
             key={key}
-            href="#"
-            className={`text-[#0b0a0f] text-[16px] font-semibold whitespace-nowrap px-[10px] py-[4px] ${
-              activePage === key
-                ? 'border border-[#0b0a0f] rounded-[7px]'
-                : ''
+            type="button"
+            onClick={() => onNavigate?.(key)}
+            style={{
+              border: activePage === key ? '1px solid #0b0a0f' : '1px solid transparent',
+              borderRadius: '7px',
+              background: 'transparent',
+              cursor: 'pointer',
+              padding: '4px 10px',
+            }}
+            className={`text-[#0b0a0f] text-[16px] font-semibold whitespace-nowrap ${
+              activePage !== key ? 'hover:opacity-70 transition-opacity' : ''
             }`}
           >
             {label}
-          </a>
+          </button>
         ))}
       </nav>
 

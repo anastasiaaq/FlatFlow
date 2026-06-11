@@ -3,11 +3,14 @@ import Navbar from '../components/Navbar'
 import { apiHouseholdsCurrentRetrieve, apiHouseholdsLeaveCreate } from '../api/generated/households/households'
 import type { HouseholdDetail } from '../api/generated/flatFlowAPI.schemas'
 
+type Page = 'household' | 'rules' | 'chores' | 'issues'
+
 type Props = {
   currentUserId?: number
+  onNavigate?: (page: Page) => void
 }
 
-export default function HouseholdPage({ currentUserId }: Props) {
+export default function HouseholdPage({ currentUserId, onNavigate }: Props) {
   const [household, setHousehold] = useState<HouseholdDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -66,6 +69,7 @@ export default function HouseholdPage({ currentUserId }: Props) {
         householdName={household?.name}
         userName={currentMember?.display_name}
         activePage="household"
+        onNavigate={onNavigate}
       />
 
       <main className="flex-1 px-[154px] pt-[47px] pb-[80px]">
