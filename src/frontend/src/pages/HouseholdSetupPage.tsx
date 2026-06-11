@@ -12,11 +12,15 @@ import { Label } from '../components/ui/label'
 type HouseholdSetupPageProps = {
   onHouseholdReady: () => void
   onLogout: () => void
+  userName?: string
+  onProfileOpen?: () => void
 }
 
 export default function HouseholdSetupPage({
   onHouseholdReady,
   onLogout,
+  userName,
+  onProfileOpen,
 }: HouseholdSetupPageProps) {
   const [householdName, setHouseholdName] = useState('')
   const [inviteCode, setInviteCode] = useState('')
@@ -97,9 +101,22 @@ export default function HouseholdSetupPage({
     <div className="min-h-screen bg-[#fffef7] text-[#0b0a0f]">
       <header className="flex h-[90px] items-center justify-between bg-[#fdd329] px-[154px] max-lg:px-[32px]">
         <span className="text-[30px] font-semibold">FlatFlow</span>
-        <Button variant="ghost" onClick={onLogout}>
-          Log out
-        </Button>
+        <div className="flex items-center gap-[12px] text-[16px] font-bold">
+          <button
+            type="button"
+            onClick={onProfileOpen}
+            className="flex items-center gap-[12px] rounded-[7px] px-[6px] py-[4px] hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b0a0f]"
+            aria-label="Open profile"
+          >
+            {userName && <span>{userName}</span>}
+            <svg width="16" height="7" viewBox="0 0 16 7" fill="none">
+              <path d="M1 1L8 6L15 1" stroke="#0b0a0f" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
+          <Button variant="ghost" onClick={onLogout}>
+            Log out
+          </Button>
+        </div>
       </header>
 
       <main className="mx-auto flex w-full max-w-[930px] flex-col px-[24px] py-[72px]">

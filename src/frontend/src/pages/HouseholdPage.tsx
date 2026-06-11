@@ -5,10 +5,17 @@ import type { HouseholdDetail } from '../api/generated/flatFlowAPI.schemas'
 
 type Props = {
   currentUserId?: number
+  currentUserName?: string
   onLogout?: () => void
+  onProfileOpen?: () => void
 }
 
-export default function HouseholdPage({ currentUserId, onLogout }: Props) {
+export default function HouseholdPage({
+  currentUserId,
+  currentUserName,
+  onLogout,
+  onProfileOpen,
+}: Props) {
   const [household, setHousehold] = useState<HouseholdDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,6 +60,8 @@ export default function HouseholdPage({ currentUserId, onLogout }: Props) {
   }
 
   const currentMember = household?.members.find((m) => m.id === currentUserId)
+  const getMemberDisplayName = (memberId: number, displayName: string) =>
+    memberId === currentUserId && currentUserName ? currentUserName : displayName
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString('en-US', {
@@ -65,9 +74,14 @@ export default function HouseholdPage({ currentUserId, onLogout }: Props) {
     <div className="min-h-screen bg-[#fffef7] flex flex-col">
       <Navbar
         householdName={household?.name}
-        userName={currentMember?.display_name}
+        userName={
+          currentMember
+            ? getMemberDisplayName(currentMember.id, currentMember.display_name)
+            : currentUserName
+        }
         activePage="household"
         onLogout={onLogout}
+        onProfileOpen={onProfileOpen}
       />
 
       <main className="flex-1 px-[154px] pt-[47px] pb-[80px]">
@@ -104,7 +118,10 @@ export default function HouseholdPage({ currentUserId, onLogout }: Props) {
                   <p className="text-[#0b0a0f] text-[16px]">
                     Created by{' '}
                     <span className="font-semibold">
-                      {household.created_by.display_name}
+                      {getMemberDisplayName(
+                        household.created_by.id,
+                        household.created_by.display_name,
+                      )}
                     </span>
                   </p>
                   <p className="text-[#0b0a0f] text-[16px] font-light mt-[4px]">
@@ -131,7 +148,7 @@ export default function HouseholdPage({ currentUserId, onLogout }: Props) {
                         className="flex items-center justify-between px-[22px] py-[14px]"
                       >
                         <span className="text-[#0b0a0f] text-[16px] font-semibold">
-                          {member.display_name}
+                          {getMemberDisplayName(member.id, member.display_name)}
                           {isYou && (
                             <span className="font-normal"> (You)</span>
                           )}

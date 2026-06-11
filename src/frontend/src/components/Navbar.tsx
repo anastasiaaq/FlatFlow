@@ -3,6 +3,7 @@ type NavbarProps = {
   userName?: string
   activePage?: 'household' | 'rules' | 'chores' | 'issues'
   onLogout?: () => void
+  onProfileOpen?: () => void
 }
 
 export default function Navbar({
@@ -10,6 +11,7 @@ export default function Navbar({
   userName,
   activePage = 'household',
   onLogout,
+  onProfileOpen,
 }: NavbarProps) {
   const navItems = [
     { key: 'household', label: 'Household' },
@@ -42,10 +44,17 @@ export default function Navbar({
 
       <div className="flex items-center gap-[12px] text-[16px] font-bold text-[#0b0a0f]">
         {householdName && <span>{householdName}</span>}
-        {userName && <span>{userName}</span>}
-        <svg width="16" height="7" viewBox="0 0 16 7" fill="none">
-          <path d="M1 1L8 6L15 1" stroke="#0b0a0f" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
+        <button
+          type="button"
+          onClick={onProfileOpen}
+          className="flex items-center gap-[12px] rounded-[7px] px-[6px] py-[4px] font-bold hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b0a0f]"
+          aria-label="Open profile"
+        >
+          {userName && <span>{userName}</span>}
+          <svg width="16" height="7" viewBox="0 0 16 7" fill="none">
+            <path d="M1 1L8 6L15 1" stroke="#0b0a0f" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
         {onLogout && (
           <button
             onClick={onLogout}
