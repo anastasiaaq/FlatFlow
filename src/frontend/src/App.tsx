@@ -1,46 +1,21 @@
 import { useEffect, useState } from 'react'
-
-type BackendStatus = 'checking' | 'online' | 'offline'
-
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
+import HouseholdPage from './pages/HouseholdPage'
+import { apiUsersMeRetrieve } from './api/generated/users/users'
 
 function App() {
-  const [backendStatus, setBackendStatus] = useState<BackendStatus>('checking')
+  const [currentUserId, setCurrentUserId] = useState<number | undefined>(undefined)
 
   useEffect(() => {
-    let cancelled = false
-
-    async function checkBackend() {
-      try {
-        const response = await fetch(`${apiBaseUrl}/health/`, {
-          credentials: 'include',
-        })
-
-        if (!cancelled) {
-          setBackendStatus(response.ok ? 'online' : 'offline')
+    apiUsersMeRetrieve()
+      .then((res) => {
+        if (res.status === 200 && res.data.user) {
+          setCurrentUserId(res.data.user.id)
         }
-      } catch {
-        if (!cancelled) {
-          setBackendStatus('offline')
-        }
-      }
-    }
-
-    checkBackend()
-    const intervalId = window.setInterval(checkBackend, 5000)
-
-    return () => {
-      cancelled = true
-      window.clearInterval(intervalId)
-    }
+      })
+      .catch(() => {})
   }, [])
 
-  return (
-    <main>
-      <h1>Welcome to FlatFlow!</h1>
-      <p>Backend status: {backendStatus}</p>
-    </main>
-  )
+  return <HouseholdPage currentUserId={currentUserId} />
 }
 
 export default App
