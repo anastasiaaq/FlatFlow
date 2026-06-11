@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Navbar from '../components/Navbar'
 import { apiHouseholdsCurrentRetrieve, apiHouseholdsLeaveCreate } from '../api/generated/households/households'
 import type { HouseholdDetail } from '../api/generated/flatFlowAPI.schemas'
@@ -13,6 +13,12 @@ export default function HouseholdPage({ currentUserId }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [leaving, setLeaving] = useState(false)
+  const [leftHousehold, setLeftHousehold] = useState(false)
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (copyTimeoutRef.current !== null) clearTimeout(copyTimeoutRef.current)
+  }, [])
 
   useEffect(() => {
     apiHouseholdsCurrentRetrieve()
@@ -29,9 +35,22 @@ export default function HouseholdPage({ currentUserId }: Props) {
 
   async function handleCopy() {
     if (!household) return
-    await navigator.clipboard.writeText(household.invite_code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(household.invite_code)
+      setCopied(true)
+      if (copyTimeoutRef.current !== null) clearTimeout(copyTimeoutRef.current)
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000)
+    } catch {
+      const el = document.createElement('textarea')
+      el.value = household.invite_code
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+      setCopied(true)
+      if (copyTimeoutRef.current !== null) clearTimeout(copyTimeoutRef.current)
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000)
+    }
   }
 
   async function handleLeave() {
@@ -41,6 +60,7 @@ export default function HouseholdPage({ currentUserId }: Props) {
       const res = await apiHouseholdsLeaveCreate()
       if (res.status === 200) {
         setHousehold(null)
+        setLeftHousehold(true)
       } else {
         alert('Failed to leave household.')
       }
@@ -82,6 +102,10 @@ export default function HouseholdPage({ currentUserId }: Props) {
 
         {error && (
           <p className="text-[#cb322d] text-[14px]">{error}</p>
+        )}
+
+        {leftHousehold && !loading && !error && (
+          <p className="text-[#393939] text-[14px]">You have successfully left the household.</p>
         )}
 
         {household && (

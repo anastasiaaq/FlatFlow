@@ -27,7 +27,7 @@ export async function customFetch<T>(
     credentials: 'include',
   })
 
-  const data = response.status === 204 ? undefined : await response.json().catch(() => undefined)
+  const data = response.status === 204 ? undefined : await response.json()
 
   return {
     data,
