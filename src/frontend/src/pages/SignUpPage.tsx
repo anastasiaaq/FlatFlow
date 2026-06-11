@@ -222,6 +222,7 @@ export default function SignUpPage({
               </div>
 
               <Button
+                type="button"
                 variant="ghost"
                 className="mx-auto mt-[27px]"
                 onClick={onHaveAccount}
