@@ -59,7 +59,7 @@ Start the full project from the `src` directory:
 
 ```bash
 cd src
-docker compose up --build
+docker compose --profile dev up -d --build
 ```
 
 Then open:

@@ -19,10 +19,11 @@ services:
       start_period: 10s
     container_name: flatflow-backend
 
-
   frontend:
+    profiles: ["dev"]
     build:
       context: ./frontend
+      target: dev
     ports:
       - "127.0.0.1:3000:3000"
     env_file:
@@ -35,6 +36,14 @@ services:
         condition: service_healthy
     container_name: flatflow-frontend
 
+  frontend-static:
+    profiles: ["prod"]
+    build:
+      context: ./frontend
+      target: static-export
+    volumes:
+      - "${FRONTEND_DIST_PATH:-./frontend/dist}:/out"
+    container_name: flatflow-frontend-static
 
   flatflow-db:
     image: postgres:16-alpine
