@@ -19,12 +19,13 @@ jobs:
           script: |
             set -e
 
-            cd ~/FlatFlow
+            cd ~/FlatFlow/src
 
             git fetch origin main
             git reset --hard origin/main
 
-            docker compose pull || true
-            docker compose up -d --build
+            docker compose up -d --build backend flatflow-db
+            docker compose exec -T backend python manage.py migrate
+            FRONTEND_DIST_PATH=/var/www/flatflow docker compose --profile prod up --build frontend-static
 
             docker compose ps
