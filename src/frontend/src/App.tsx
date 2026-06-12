@@ -1,18 +1,189 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import type {
+  AuthState,
+  UserProfile,
+} from './api/generated/flatFlowAPI.schemas'
+import {
+  apiUsersCsrfRetrieve,
+  apiUsersLogoutCreate,
+  apiUsersMeRetrieve,
+} from './api/generated/users/users'
+import {
+  getAuthRedirectRoute,
+  getPostLoginRoute,
+  getRouteFromPath,
+  routePaths,
+  type AppRoute,
+} from './auth/routing'
+import { applyProfileToAuth } from './auth/profile'
+import ProfileModal from './components/ProfileModal'
 import HouseholdPage from './pages/HouseholdPage'
-import ChoresPage from './pages/ChoresPage'
-
-type Page = 'household' | 'rules' | 'chores' | 'issues'
+import HouseholdSetupPage from './pages/HouseholdSetupPage'
+import LoginPage from './pages/LoginPage'
+import SignUpPage from './pages/SignUpPage'
 
 function App() {
-  const [activePage, setActivePage] = useState<Page>('household')
+  const [auth, setAuth] = useState<AuthState | null>(null)
+  const [route, setRoute] = useState<AppRoute>(() =>
+    getRouteFromPath(window.location.pathname),
+  )
+  const [initializing, setInitializing] = useState(true)
+  const [profileOpen, setProfileOpen] = useState(false)
 
-  switch (activePage) {
-    case 'chores':
-      return <ChoresPage onNavigate={setActivePage} />
-    default:
-      return <HouseholdPage onNavigate={setActivePage} />
+  const navigate = useCallback((nextRoute: AppRoute, replace = false) => {
+    const path = routePaths[nextRoute]
+
+    if (window.location.pathname !== path) {
+      if (replace) {
+        window.history.replaceState(null, '', path)
+      } else {
+        window.history.pushState(null, '', path)
+      }
+    }
+
+    setRoute(nextRoute)
+  }, [])
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setRoute(getRouteFromPath(window.location.pathname))
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  useEffect(() => {
+    apiUsersMeRetrieve()
+      .then((res) => setAuth(res.data))
+      .catch(() =>
+        setAuth({
+          authenticated: false,
+          has_household: false,
+          user: null,
+        }),
+      )
+      .finally(() => setInitializing(false))
+  }, [])
+
+  useEffect(() => {
+    if (initializing) return
+
+    const redirectRoute = getAuthRedirectRoute(route, auth)
+
+    if (redirectRoute) {
+      navigate(redirectRoute, true)
+    }
+  }, [auth, initializing, navigate, route])
+
+  function handleAuthenticated(nextAuth: AuthState) {
+    setAuth(nextAuth)
+    navigate(getPostLoginRoute(nextAuth), true)
   }
+
+  function handleHouseholdReady() {
+    setAuth((currentAuth) => {
+      if (!currentAuth) return currentAuth
+      return { ...currentAuth, has_household: true }
+    })
+    navigate('household', true)
+  }
+
+  function handleHouseholdLeft() {
+    setAuth((currentAuth) => {
+      if (!currentAuth) return currentAuth
+      return { ...currentAuth, has_household: false }
+    })
+    navigate('householdSetup', true)
+  }
+
+  async function handleLogout() {
+    try {
+      await apiUsersCsrfRetrieve()
+      const res = await apiUsersLogoutCreate()
+      setAuth(res.data)
+    } catch {
+      setAuth({
+        authenticated: false,
+        has_household: false,
+        user: null,
+      })
+    } finally {
+      navigate('login', true)
+    }
+  }
+
+  function handleProfileUpdated(profile: UserProfile) {
+    setAuth((currentAuth) => applyProfileToAuth(currentAuth, profile))
+  }
+
+  if (initializing) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#fffef7] text-[16px] text-[#393939]">
+        Loading...
+      </div>
+    )
+  }
+
+  const redirectRoute = getAuthRedirectRoute(route, auth)
+  const activeRoute = redirectRoute ?? route
+
+  if (activeRoute === 'household') {
+    return (
+      <>
+        <HouseholdPage
+          currentUserId={auth?.user?.id}
+          currentUserName={auth?.user?.display_name}
+          onLogout={handleLogout}
+          onProfileOpen={() => setProfileOpen(true)}
+          onHouseholdLeft={handleHouseholdLeft}
+        />
+        {profileOpen && (
+          <ProfileModal
+            user={auth?.user}
+            onClose={() => setProfileOpen(false)}
+            onProfileUpdated={handleProfileUpdated}
+          />
+        )}
+      </>
+    )
+  }
+
+  if (activeRoute === 'householdSetup') {
+    return (
+      <>
+        <HouseholdSetupPage
+          onHouseholdReady={handleHouseholdReady}
+          onLogout={handleLogout}
+          userName={auth?.user?.display_name}
+          onProfileOpen={() => setProfileOpen(true)}
+        />
+        {profileOpen && (
+          <ProfileModal
+            user={auth?.user}
+            onClose={() => setProfileOpen(false)}
+            onProfileUpdated={handleProfileUpdated}
+          />
+        )}
+      </>
+    )
+  }
+
+  if (activeRoute === 'signup') {
+    return (
+      <SignUpPage
+        onAuthenticated={handleAuthenticated}
+        onHaveAccount={() => navigate('login')}
+      />
+    )
+  }
+
+  return (
+    <LoginPage
+      onAuthenticated={handleAuthenticated}
+      onCreateAccount={() => navigate('signup')}
+    />
+  )
 }
 
 export default App
