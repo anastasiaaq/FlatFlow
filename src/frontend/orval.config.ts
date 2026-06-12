@@ -1,8 +1,18 @@
 import { defineConfig } from 'orval';
 
 export default defineConfig({
-  petstore: {
+  flatflow: {
     input: '../../docs/api/openapi-schema.yaml',
-    output: './src/api/generated/',
+    output: {
+      mode: 'tags-split',
+      target: './src/api/generated',
+      client: 'fetch',
+      override: {
+        mutator: {
+          path: './src/api/fetcher.ts',
+          name: 'customFetch',
+        },
+      },
+    },
   },
 });
