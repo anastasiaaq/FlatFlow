@@ -36,7 +36,7 @@ See [docs/user-stories.md](docs/user-stories.md) for the full breakdown.
 | Database | PostgreSQL |
 | Auth | Session-based, HTTP-only cookies |
 | Containerization | Docker & Docker Compose |
-| Deployment | AWS EC2 |
+| Deployment | Hetzner Cloud VPS |
 
 ## Setup
 
