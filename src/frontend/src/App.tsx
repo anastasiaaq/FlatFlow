@@ -17,6 +17,7 @@ import {
 } from './auth/routing'
 import { applyProfileToAuth } from './auth/profile'
 import ProfileModal from './components/ProfileModal'
+import ChoresPage from './pages/ChoresPage'
 import HouseholdPage from './pages/HouseholdPage'
 import HouseholdSetupPage from './pages/HouseholdSetupPage'
 import LoginPage from './pages/LoginPage'
@@ -89,6 +90,11 @@ function App() {
     navigate('household', true)
   }
 
+  function handleNavNavigate(page: 'household' | 'rules' | 'chores' | 'issues') {
+    if (page === 'chores') navigate('chores')
+    else if (page === 'household') navigate('household')
+  }
+
   function handleHouseholdLeft() {
     setAuth((currentAuth) => {
       if (!currentAuth) return currentAuth
@@ -128,6 +134,27 @@ function App() {
   const redirectRoute = getAuthRedirectRoute(route, auth)
   const activeRoute = redirectRoute ?? route
 
+  if (activeRoute === 'chores') {
+    return (
+      <>
+        <ChoresPage
+          currentUserId={auth?.user?.id}
+          currentUserName={auth?.user?.display_name}
+          onLogout={handleLogout}
+          onProfileOpen={() => setProfileOpen(true)}
+          onNavigate={handleNavNavigate}
+        />
+        {profileOpen && (
+          <ProfileModal
+            user={auth?.user}
+            onClose={() => setProfileOpen(false)}
+            onProfileUpdated={handleProfileUpdated}
+          />
+        )}
+      </>
+    )
+  }
+
   if (activeRoute === 'household') {
     return (
       <>
@@ -137,6 +164,7 @@ function App() {
           onLogout={handleLogout}
           onProfileOpen={() => setProfileOpen(true)}
           onHouseholdLeft={handleHouseholdLeft}
+          onNavigate={handleNavNavigate}
         />
         {profileOpen && (
           <ProfileModal

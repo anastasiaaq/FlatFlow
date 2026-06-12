@@ -60,21 +60,8 @@ const STATUS_COLORS: Record<string, string> = {
   ACTIVE: '#b9d8e6',
 }
 
-const ASSIGNEE_COLORS = [
-  '#b9d8e6',
-  '#c0e6b9',
-  '#e6d4b9',
-  '#d4b9e6',
-  '#e6b9c4',
-  '#b9e6d8',
-  '#e6e0b9',
-]
-
 function getChoreColor(chore: ChoreDetail): string {
-  if (chore.status !== 'ACTIVE') return STATUS_COLORS[chore.status] ?? '#b9d8e6'
-  // Stable color per assignee or chore id
-  const seed = chore.assignee?.id ?? chore.id
-  return ASSIGNEE_COLORS[seed % ASSIGNEE_COLORS.length]
+  return STATUS_COLORS[chore.status] ?? '#b9d8e6'
 }
 
 type Segment = {
@@ -140,10 +127,13 @@ type Page = 'household' | 'rules' | 'chores' | 'issues'
 
 type Props = {
   currentUserId?: number
+  currentUserName?: string
+  onLogout?: () => void
+  onProfileOpen?: () => void
   onNavigate?: (page: Page) => void
 }
 
-export default function ChoresPage({ currentUserId, onNavigate }: Props) {
+export default function ChoresPage({ currentUserId, currentUserName, onLogout, onProfileOpen, onNavigate }: Props) {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
@@ -203,6 +193,7 @@ export default function ChoresPage({ currentUserId, onNavigate }: Props) {
   }
 
   const currentMember = household?.members.find((m) => m.id === currentUserId)
+  const displayName = currentMember?.display_name ?? currentUserName
   const weeks = getCalendarWeeks(year, month)
   const members = (household?.members ?? []) as Array<{ id: number; display_name: string }>
 
@@ -210,8 +201,10 @@ export default function ChoresPage({ currentUserId, onNavigate }: Props) {
     <div className="min-h-screen bg-[#fffef7] flex flex-col">
       <Navbar
         householdName={household?.name}
-        userName={currentMember?.display_name}
+        userName={displayName}
         activePage="chores"
+        onLogout={onLogout}
+        onProfileOpen={onProfileOpen}
         onNavigate={onNavigate}
       />
 

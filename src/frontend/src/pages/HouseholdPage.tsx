@@ -9,6 +9,7 @@ type Props = {
   onLogout?: () => void
   onProfileOpen?: () => void
   onHouseholdLeft?: () => void
+  onNavigate?: (page: 'household' | 'rules' | 'chores' | 'issues') => void
 }
 
 export default function HouseholdPage({
@@ -17,6 +18,7 @@ export default function HouseholdPage({
   onLogout,
   onProfileOpen,
   onHouseholdLeft,
+  onNavigate,
 }: Props) {
   const [household, setHousehold] = useState<HouseholdDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -93,6 +95,7 @@ export default function HouseholdPage({
         activePage="household"
         onLogout={onLogout}
         onProfileOpen={onProfileOpen}
+        onNavigate={onNavigate}
       />
 
       <main className="flex-1 px-[154px] pt-[47px] pb-[80px]">
