@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "node -e \"require('fs').mkdirSync('.tmp/tests',{recursive:true});require('fs').writeFileSync('.tmp/tests/package.json','{\\\"type\\\":\\\"commonjs\\\"}')\" && tsc -p tsconfig.test.json && node --test .tmp/tests/rules.test.js",
     "preview": "vite preview",
     "generate-api": "orval"
   },
