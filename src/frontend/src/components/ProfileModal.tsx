@@ -107,7 +107,7 @@ export default function ProfileModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black px-[24px]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-[24px]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="profile-title"
@@ -146,12 +146,14 @@ export default function ProfileModal({
             />
           </div>
 
-          <div className="mt-[31px] space-y-[18px]">
-            <Label htmlFor="profile-email" className="font-semibold">
-              Email
-            </Label>
-            <Input id="profile-email" value={email} readOnly />
-          </div>
+          {!editing && (
+            <div className="mt-[31px] space-y-[18px]">
+              <Label htmlFor="profile-email" className="font-semibold">
+                Email
+              </Label>
+              <Input id="profile-email" value={email} readOnly />
+            </div>
+          )}
 
           {error && (
             <p

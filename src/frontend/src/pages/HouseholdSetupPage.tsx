@@ -3,6 +3,7 @@ import {
   apiHouseholdsCreate,
   apiHouseholdsJoinCreate,
 } from '../api/generated/households/households'
+import { isApiHttpError } from '../api/fetcher'
 import { apiUsersCsrfRetrieve } from '../api/generated/users/users'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
@@ -51,8 +52,12 @@ export default function HouseholdSetupPage({
       }
 
       setError('Could not create household. Please try again.')
-    } catch {
-      setError('Could not create household. Please try again.')
+    } catch (error) {
+      if (isApiHttpError(error) && error.status === 409) {
+        setError('You already belong to a household.')
+      } else {
+        setError('Could not create household. Please try again.')
+      }
     } finally {
       setLoadingAction(null)
     }
@@ -79,19 +84,15 @@ export default function HouseholdSetupPage({
         return
       }
 
-      if (res.status === 404) {
+      setError('Could not join household. Please try again.')
+    } catch (error) {
+      if (isApiHttpError(error) && error.status === 404) {
         setError('Invite code was not found.')
-        return
-      }
-
-      if (res.status === 409) {
+      } else if (isApiHttpError(error) && error.status === 409) {
         setError('You already belong to a household.')
-        return
+      } else {
+        setError('Could not join household. Please try again.')
       }
-
-      setError('Could not join household. Please try again.')
-    } catch {
-      setError('Could not join household. Please try again.')
     } finally {
       setLoadingAction(null)
     }

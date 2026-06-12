@@ -8,6 +8,7 @@ type Props = {
   currentUserName?: string
   onLogout?: () => void
   onProfileOpen?: () => void
+  onHouseholdLeft?: () => void
 }
 
 export default function HouseholdPage({
@@ -15,11 +16,13 @@ export default function HouseholdPage({
   currentUserName,
   onLogout,
   onProfileOpen,
+  onHouseholdLeft,
 }: Props) {
   const [household, setHousehold] = useState<HouseholdDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [copyError, setCopyError] = useState<string | null>(null)
   const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
@@ -37,9 +40,16 @@ export default function HouseholdPage({
 
   async function handleCopy() {
     if (!household) return
-    await navigator.clipboard.writeText(household.invite_code)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setCopyError(null)
+
+    try {
+      await navigator.clipboard.writeText(household.invite_code)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      setCopied(false)
+      setCopyError('Could not copy code. Please copy it manually.')
+    }
   }
 
   async function handleLeave() {
@@ -49,6 +59,7 @@ export default function HouseholdPage({
       const res = await apiHouseholdsLeaveCreate()
       if (res.status === 200) {
         setHousehold(null)
+        onHouseholdLeft?.()
       } else {
         alert('Failed to leave household.')
       }
@@ -198,6 +209,11 @@ export default function HouseholdPage({
                 >
                   {copied ? 'COPIED!' : 'COPY CODE'}
                 </button>
+                {copyError && (
+                  <p className="mt-[12px] text-[#cb322d] text-[14px]">
+                    {copyError}
+                  </p>
+                )}
               </div>
 
               {/* Leave household card */}

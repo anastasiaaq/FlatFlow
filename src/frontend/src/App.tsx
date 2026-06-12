@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type {
   AuthState,
   UserProfile,
@@ -30,7 +30,7 @@ function App() {
   const [initializing, setInitializing] = useState(true)
   const [profileOpen, setProfileOpen] = useState(false)
 
-  function navigate(nextRoute: AppRoute, replace = false) {
+  const navigate = useCallback((nextRoute: AppRoute, replace = false) => {
     const path = routePaths[nextRoute]
 
     if (window.location.pathname !== path) {
@@ -42,7 +42,7 @@ function App() {
     }
 
     setRoute(nextRoute)
-  }
+  }, [])
 
   useEffect(() => {
     const handlePopState = () => {
@@ -72,10 +72,10 @@ function App() {
     const redirectRoute = getAuthRedirectRoute(route, auth)
 
     if (redirectRoute) {
-      window.history.replaceState(null, '', routePaths[redirectRoute])
-      queueMicrotask(() => setRoute(redirectRoute))
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      navigate(redirectRoute, true)
     }
-  }, [auth, initializing, route])
+  }, [auth, initializing, navigate, route])
 
   function handleAuthenticated(nextAuth: AuthState) {
     setAuth(nextAuth)
@@ -88,6 +88,14 @@ function App() {
       return { ...currentAuth, has_household: true }
     })
     navigate('household', true)
+  }
+
+  function handleHouseholdLeft() {
+    setAuth((currentAuth) => {
+      if (!currentAuth) return currentAuth
+      return { ...currentAuth, has_household: false }
+    })
+    navigate('householdSetup', true)
   }
 
   async function handleLogout() {
@@ -129,6 +137,7 @@ function App() {
           currentUserName={auth?.user?.display_name}
           onLogout={handleLogout}
           onProfileOpen={() => setProfileOpen(true)}
+          onHouseholdLeft={handleHouseholdLeft}
         />
         {profileOpen && (
           <ProfileModal

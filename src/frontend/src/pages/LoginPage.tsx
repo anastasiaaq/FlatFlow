@@ -4,6 +4,7 @@ import {
   apiUsersLoginCreate,
 } from '../api/generated/users/users'
 import type { AuthState } from '../api/generated/flatFlowAPI.schemas'
+import { isApiHttpError } from '../api/fetcher'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -60,6 +61,22 @@ export default function LoginPage({
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors<LoginFields>>({})
 
+  async function submitLogin(): Promise<LoginResponse> {
+    try {
+      return await apiUsersLoginCreate({
+        email: email.trim(),
+        password,
+      })
+    } catch (error) {
+      if (isApiHttpError(error) && error.status === 403) {
+        await apiUsersCsrfRetrieve()
+        return apiUsersLoginCreate({ email: email.trim(), password })
+      }
+
+      throw error
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
@@ -74,15 +91,7 @@ export default function LoginPage({
 
     try {
       await apiUsersCsrfRetrieve()
-      let res: LoginResponse = await apiUsersLoginCreate({
-        email: email.trim(),
-        password,
-      })
-
-      if (res.status === 403) {
-        await apiUsersCsrfRetrieve()
-        res = await apiUsersLoginCreate({ email: email.trim(), password })
-      }
+      const res = await submitLogin()
 
       if (res.status === 200) {
         onAuthenticated?.(res.data as AuthState)
@@ -90,8 +99,12 @@ export default function LoginPage({
       }
 
       setError(getLoginErrorMessage(res.data, res.status))
-    } catch {
-      setError('Could not log in. Please try again.')
+    } catch (error) {
+      if (isApiHttpError(error)) {
+        setError(getLoginErrorMessage(error.body, error.status))
+      } else {
+        setError('Could not log in. Please try again.')
+      }
     } finally {
       setLoading(false)
     }

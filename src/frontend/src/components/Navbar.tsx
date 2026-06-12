@@ -4,6 +4,7 @@ type NavbarProps = {
   activePage?: 'household' | 'rules' | 'chores' | 'issues'
   onLogout?: () => void
   onProfileOpen?: () => void
+  onNavigate?: (page: 'household' | 'rules' | 'chores' | 'issues') => void
 }
 
 export default function Navbar({
@@ -12,6 +13,7 @@ export default function Navbar({
   activePage = 'household',
   onLogout,
   onProfileOpen,
+  onNavigate,
 }: NavbarProps) {
   const navItems = [
     { key: 'household', label: 'Household' },
@@ -28,9 +30,10 @@ export default function Navbar({
 
       <nav className="flex items-center gap-[50px] flex-1">
         {navItems.map(({ key, label }) => (
-          <a
+          <button
             key={key}
-            href="#"
+            type="button"
+            onClick={() => onNavigate?.(key)}
             className={`text-[#0b0a0f] text-[16px] font-semibold whitespace-nowrap px-[10px] py-[4px] ${
               activePage === key
                 ? 'border border-[#0b0a0f] rounded-[7px]'
@@ -38,7 +41,7 @@ export default function Navbar({
             }`}
           >
             {label}
-          </a>
+          </button>
         ))}
       </nav>
 
