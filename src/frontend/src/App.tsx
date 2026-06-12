@@ -72,7 +72,6 @@ function App() {
     const redirectRoute = getAuthRedirectRoute(route, auth)
 
     if (redirectRoute) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       navigate(redirectRoute, true)
     }
   }, [auth, initializing, navigate, route])
