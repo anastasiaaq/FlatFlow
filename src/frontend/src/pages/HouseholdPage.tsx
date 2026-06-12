@@ -1,24 +1,29 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import { apiHouseholdsCurrentRetrieve, apiHouseholdsLeaveCreate } from '../api/generated/households/households'
 import type { HouseholdDetail } from '../api/generated/flatFlowAPI.schemas'
 
 type Props = {
   currentUserId?: number
+  currentUserName?: string
+  onLogout?: () => void
+  onProfileOpen?: () => void
+  onHouseholdLeft?: () => void
 }
 
-export default function HouseholdPage({ currentUserId }: Props) {
+export default function HouseholdPage({
+  currentUserId,
+  currentUserName,
+  onLogout,
+  onProfileOpen,
+  onHouseholdLeft,
+}: Props) {
   const [household, setHousehold] = useState<HouseholdDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [copyError, setCopyError] = useState<string | null>(null)
   const [leaving, setLeaving] = useState(false)
-  const [leftHousehold, setLeftHousehold] = useState(false)
-  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => () => {
-    if (copyTimeoutRef.current !== null) clearTimeout(copyTimeoutRef.current)
-  }, [])
 
   useEffect(() => {
     apiHouseholdsCurrentRetrieve()
@@ -35,21 +40,15 @@ export default function HouseholdPage({ currentUserId }: Props) {
 
   async function handleCopy() {
     if (!household) return
+    setCopyError(null)
+
     try {
       await navigator.clipboard.writeText(household.invite_code)
       setCopied(true)
-      if (copyTimeoutRef.current !== null) clearTimeout(copyTimeoutRef.current)
-      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000)
+      setTimeout(() => setCopied(false), 2000)
     } catch {
-      const el = document.createElement('textarea')
-      el.value = household.invite_code
-      document.body.appendChild(el)
-      el.select()
-      document.execCommand('copy')
-      document.body.removeChild(el)
-      setCopied(true)
-      if (copyTimeoutRef.current !== null) clearTimeout(copyTimeoutRef.current)
-      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000)
+      setCopied(false)
+      setCopyError('Could not copy code. Please copy it manually.')
     }
   }
 
@@ -60,7 +59,7 @@ export default function HouseholdPage({ currentUserId }: Props) {
       const res = await apiHouseholdsLeaveCreate()
       if (res.status === 200) {
         setHousehold(null)
-        setLeftHousehold(true)
+        onHouseholdLeft?.()
       } else {
         alert('Failed to leave household.')
       }
@@ -72,6 +71,8 @@ export default function HouseholdPage({ currentUserId }: Props) {
   }
 
   const currentMember = household?.members.find((m) => m.id === currentUserId)
+  const getMemberDisplayName = (memberId: number, displayName: string) =>
+    memberId === currentUserId && currentUserName ? currentUserName : displayName
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString('en-US', {
@@ -84,8 +85,14 @@ export default function HouseholdPage({ currentUserId }: Props) {
     <div className="min-h-screen bg-[#fffef7] flex flex-col">
       <Navbar
         householdName={household?.name}
-        userName={currentMember?.display_name}
+        userName={
+          currentMember
+            ? getMemberDisplayName(currentMember.id, currentMember.display_name)
+            : currentUserName
+        }
         activePage="household"
+        onLogout={onLogout}
+        onProfileOpen={onProfileOpen}
       />
 
       <main className="flex-1 px-[154px] pt-[47px] pb-[80px]">
@@ -102,10 +109,6 @@ export default function HouseholdPage({ currentUserId }: Props) {
 
         {error && (
           <p className="text-[#cb322d] text-[14px]">{error}</p>
-        )}
-
-        {leftHousehold && !loading && !error && (
-          <p className="text-[#393939] text-[14px]">You have successfully left the household.</p>
         )}
 
         {household && (
@@ -126,7 +129,10 @@ export default function HouseholdPage({ currentUserId }: Props) {
                   <p className="text-[#0b0a0f] text-[16px]">
                     Created by{' '}
                     <span className="font-semibold">
-                      {household.created_by.display_name}
+                      {getMemberDisplayName(
+                        household.created_by.id,
+                        household.created_by.display_name,
+                      )}
                     </span>
                   </p>
                   <p className="text-[#0b0a0f] text-[16px] font-light mt-[4px]">
@@ -153,7 +159,7 @@ export default function HouseholdPage({ currentUserId }: Props) {
                         className="flex items-center justify-between px-[22px] py-[14px]"
                       >
                         <span className="text-[#0b0a0f] text-[16px] font-semibold">
-                          {member.display_name}
+                          {getMemberDisplayName(member.id, member.display_name)}
                           {isYou && (
                             <span className="font-normal"> (You)</span>
                           )}
@@ -203,6 +209,11 @@ export default function HouseholdPage({ currentUserId }: Props) {
                 >
                   {copied ? 'COPIED!' : 'COPY CODE'}
                 </button>
+                {copyError && (
+                  <p className="mt-[12px] text-[#cb322d] text-[14px]">
+                    {copyError}
+                  </p>
+                )}
               </div>
 
               {/* Leave household card */}

@@ -1,19 +1,20 @@
 import { useState } from 'react'
+import type { AuthState } from '../api/generated/flatFlowAPI.schemas'
+import { isApiHttpError } from '../api/fetcher'
 import {
   apiUsersCreate,
   apiUsersCsrfRetrieve,
 } from '../api/generated/users/users'
-import type { AuthState } from '../api/generated/flatFlowAPI.schemas'
-import { Button } from '../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-import { Input } from '../components/ui/input'
-import { Label } from '../components/ui/label'
 import {
   hasErrors,
   validateSignUpForm,
   type FieldErrors,
   type SignUpFields,
 } from '../auth/validation'
+import { Button } from '../components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
 
 type SignUpPageProps = {
   onAuthenticated?: (auth: AuthState) => void
@@ -69,23 +70,23 @@ export default function SignUpPage({
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors<SignUpFields>>({})
 
-  async function submitSignUp() {
-    let res: SignUpResponse = await apiUsersCreate({
-      email,
+  async function submitSignUp(): Promise<SignUpResponse> {
+    const payload = {
+      email: email.trim(),
       display_name: displayName,
       password,
-    })
-
-    if (res.status === 403) {
-      await apiUsersCsrfRetrieve()
-      res = await apiUsersCreate({
-        email,
-        display_name: displayName,
-        password,
-      })
     }
 
-    return res
+    try {
+      return await apiUsersCreate(payload)
+    } catch (error) {
+      if (isApiHttpError(error) && error.status === 403) {
+        await apiUsersCsrfRetrieve()
+        return apiUsersCreate(payload)
+      }
+
+      throw error
+    }
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -114,8 +115,12 @@ export default function SignUpPage({
       }
 
       setError(getSignUpErrorMessage(res.data, res.status))
-    } catch {
-      setError('Could not create an account. Please try again.')
+    } catch (error) {
+      if (isApiHttpError(error)) {
+        setError(getSignUpErrorMessage(error.body, error.status))
+      } else {
+        setError('Could not create an account. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
