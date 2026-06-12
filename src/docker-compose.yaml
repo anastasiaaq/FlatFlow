@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     env_file:
       - ./backend/.env
     depends_on:
@@ -24,7 +24,7 @@ services:
     build:
       context: ./frontend
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     env_file:
       - ./frontend/.env
     volumes:
@@ -41,7 +41,7 @@ services:
     env_file:
       - ./backend/.env
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
