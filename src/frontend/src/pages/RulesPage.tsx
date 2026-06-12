@@ -295,7 +295,7 @@ function RuleForm({
       </div>
       <textarea
         maxLength={RULE_MAX_LENGTH}
-        placeholder="Enter you text here...."
+        placeholder="Enter your text here...."
         value={text}
         onChange={(event) => onChange(event.target.value)}
       />
@@ -342,7 +342,7 @@ function EditRulePanel({
       </div>
       <textarea
         maxLength={RULE_MAX_LENGTH}
-        placeholder="Enter you text here...."
+        placeholder="Enter your text here...."
         value={text}
         onChange={(event) => {
           setText(event.target.value)

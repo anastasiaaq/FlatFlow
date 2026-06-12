@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import Navbar from './components/Navbar'
+import { ApiError, csrf, getCurrentUser, logoutUser, type AuthState } from './api'
+import ChoresPage from './pages/ChoresPage'
 import HouseholdPage from './pages/HouseholdPage'
+import IssuesPage from './pages/IssuesPage'
 import LoginPage from './pages/LoginPage'
 import RulesPage from './pages/RulesPage'
 import SignUpPage from './pages/SignUpPage'
-import { csrf, getCurrentUser, logoutUser, type AuthState } from './api'
 
 type Page = 'household' | 'rules' | 'chores' | 'issues'
 type Route = Page | 'login' | 'signup'
@@ -33,6 +34,20 @@ function App() {
     getRouteFromPath(window.location.pathname),
   )
   const [authChecked, setAuthChecked] = useState(false)
+  const [appError, setAppError] = useState<string | null>(null)
+
+  useEffect(() => {
+    function handlePopState() {
+      setRoute(getRouteFromPath(window.location.pathname))
+      setAppError(null)
+    }
+
+    window.addEventListener('popstate', handlePopState)
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -58,11 +73,19 @@ function App() {
         }
 
         if (active) setAuthChecked(true)
-      } catch {
-        window.history.replaceState(null, '', '/login')
+      } catch (err) {
+        if (err instanceof ApiError && [401, 403].includes(err.status)) {
+          window.history.replaceState(null, '', '/login')
+          if (active) {
+            setRoute('login')
+            setAuthChecked(true)
+          }
+          return
+        }
+
+        console.error(err)
         if (active) {
-          setRoute('login')
-          setAuthChecked(true)
+          setAppError('Could not verify your session. Please try again.')
         }
       }
     }
@@ -76,6 +99,7 @@ function App() {
 
   function navigate(nextRoute: Route, replace = false) {
     setRoute(nextRoute)
+    setAppError(null)
 
     const nextPath = `/${nextRoute}`
     if (replace) {
@@ -93,8 +117,10 @@ function App() {
     try {
       await csrf()
       await logoutUser()
-    } finally {
       navigate('login', true)
+    } catch (err) {
+      console.error(err)
+      window.alert('Could not log out. Please try again.')
     }
   }
 
@@ -110,6 +136,14 @@ function App() {
 
   function handleHaveAccount() {
     navigate('login', true)
+  }
+
+  if (appError) {
+    return (
+      <main className="placeholder-page">
+        <p className="rules-message rules-message--error">{appError}</p>
+      </main>
+    )
   }
 
   if (route === 'login') {
@@ -142,23 +176,11 @@ function App() {
     return <HouseholdPage onNavigate={handleNavigate} onLogout={handleLogout} />
   }
 
-  return (
-    <div className="page-shell">
-      <Navbar
-        activePage={route}
-        householdName="Girls 039"
-        userName="Katia"
-        onNavigate={handleNavigate}
-        onLogout={handleLogout}
-      />
-      <main className="placeholder-page">
-        <h1>{route.charAt(0).toUpperCase() + route.slice(1)}</h1>
-      </main>
-      <footer className="app-footer">
-        © 2026 Bratiuk, Horalevych, Dvoilenko, Tsepkalo
-      </footer>
-    </div>
-  )
+  if (route === 'chores') {
+    return <ChoresPage onNavigate={handleNavigate} onLogout={handleLogout} />
+  }
+
+  return <IssuesPage onNavigate={handleNavigate} onLogout={handleLogout} />
 }
 
 export default App

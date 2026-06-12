@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ApiError, csrf, registerUser, type AuthState } from '../api'
 
 type SignUpPageProps = {
@@ -15,6 +15,15 @@ export default function SignUpPage({
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const abandonedRef = useRef(false)
+
+  useEffect(() => {
+    abandonedRef.current = false
+
+    return () => {
+      abandonedRef.current = true
+    }
+  }, [])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -43,11 +52,11 @@ export default function SignUpPage({
     try {
       await csrf()
       const response = await registerUser(trimmedName, trimmedEmail, password)
-      onSignUpSuccess(response.data)
+      if (!abandonedRef.current) onSignUpSuccess(response.data)
     } catch (err) {
-      setError(getSignUpError(err))
+      if (!abandonedRef.current) setError(getSignUpError(err))
     } finally {
-      setSubmitting(false)
+      if (!abandonedRef.current) setSubmitting(false)
     }
   }
 
@@ -108,6 +117,7 @@ export default function SignUpPage({
           <button
             type="button"
             className="auth-link-button"
+            disabled={submitting}
             onClick={onHaveAccount}
           >
             I have an account

@@ -19,6 +19,14 @@ button {
   cursor: pointer;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #0b0a0f;
+  outline-offset: 3px;
+}
+
 .page-shell {
   min-height: 100vh;
   display: flex;
@@ -148,6 +156,13 @@ button {
 
 .navbar__link--active {
   border-color: #0b0a0f;
+}
+
+.navbar__link:focus-visible,
+.navbar__profile:focus-visible,
+.navbar__logout:focus-visible {
+  outline: 3px solid #0b0a0f;
+  outline-offset: 3px;
 }
 
 .navbar__account,
@@ -309,7 +324,6 @@ button {
   padding: 11px 14px;
   border: 1px solid #d8d8bd;
   border-radius: 7px;
-  outline: none;
   background: #fffef7;
   color: #0b0a0f;
   font-size: 12px;
