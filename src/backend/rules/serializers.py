@@ -4,6 +4,7 @@ from rest_framework import serializers
 class RuleMemberSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     display_name = serializers.CharField(read_only=True)
+    is_current_member = serializers.BooleanField(read_only=True)
 
 
 class RuleWriteSerializer(serializers.Serializer):

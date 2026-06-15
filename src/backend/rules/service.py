@@ -23,10 +23,17 @@ class RuleService:
             raise NotInHouseholdError()
         return membership.household
 
+    def _member_ids(self, household):
+        return self.rule_repository.list_member_ids(household)
+
+    def _to_view(self, rule, household) -> RuleView:
+        return RuleView.from_rule(rule, self._member_ids(household))
+
     def list_rules(self, user) -> list[RuleView]:
         household = self._require_household(user)
         rules = self.rule_repository.list_for_household(household)
-        return [RuleView.from_rule(rule) for rule in rules]
+        member_ids = self._member_ids(household)
+        return [RuleView.from_rule(rule, member_ids) for rule in rules]
 
     def create_rule(self, user, payload: RuleCreateRequest) -> RuleView:
         household = self._require_household(user)
@@ -35,7 +42,7 @@ class RuleService:
             text=payload.text.strip(),
             created_by=user,
         )
-        return RuleView.from_rule(rule)
+        return self._to_view(rule, household)
 
     def update_rule(
         self, user, rule_id: int, payload: RuleUpdateRequest
@@ -50,7 +57,7 @@ class RuleService:
             rule.text = payload.text.strip()
             rule.last_modified_by = user
             self.rule_repository.save(rule)
-        return RuleView.from_rule(rule)
+        return self._to_view(rule, household)
 
     def delete_rule(self, user, rule_id: int) -> None:
         household = self._require_household(user)
