@@ -80,6 +80,7 @@ export const ChoreStatus = {
 export interface ChoreMember {
   readonly id: number;
   readonly display_name: string;
+  readonly is_current_member: boolean;
 }
 
 export interface ChoreDetail {
@@ -181,6 +182,7 @@ export interface PatchedChoreUpdate {
 export interface RuleMember {
   readonly id: number;
   readonly display_name: string;
+  readonly is_current_member: boolean;
 }
 
 export interface RuleDetail {
