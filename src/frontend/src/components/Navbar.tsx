@@ -19,7 +19,7 @@ export default function Navbar({
 }: NavbarProps) {
   const navItems = [
     { key: 'household', label: 'Household', disabled: false },
-    { key: 'rules', label: 'Rules', disabled: true },
+    { key: 'rules', label: 'Rules', disabled: false },
     { key: 'chores', label: 'Chores', disabled: false },
     { key: 'issues', label: 'Issues', disabled: true },
   ] as const

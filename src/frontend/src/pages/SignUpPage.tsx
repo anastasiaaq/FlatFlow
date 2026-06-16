@@ -106,7 +106,6 @@ export default function SignUpPage({
     setLoading(true)
 
     try {
-      await apiUsersCsrfRetrieve()
       const res = await submitSignUp()
 
       if (res.status === 201) {

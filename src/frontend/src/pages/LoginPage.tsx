@@ -90,7 +90,6 @@ export default function LoginPage({
     setLoading(true)
 
     try {
-      await apiUsersCsrfRetrieve()
       const res = await submitLogin()
 
       if (res.status === 200) {

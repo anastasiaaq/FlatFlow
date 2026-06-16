@@ -1,6 +1,6 @@
 import type { AuthState } from '../api/generated/flatFlowAPI.schemas'
 
-export type AppRoute = 'login' | 'signup' | 'household' | 'householdSetup' | 'chores'
+export type AppRoute = 'login' | 'signup' | 'household' | 'householdSetup' | 'chores' | 'rules'
 
 export const routePaths: Record<AppRoute, string> = {
   login: '/login',
@@ -8,14 +8,14 @@ export const routePaths: Record<AppRoute, string> = {
   household: '/household',
   householdSetup: '/household/setup',
   chores: '/chores',
+  rules: '/rules',
 }
 
 export function getRouteFromPath(pathname: string): AppRoute {
   if (matchesRoutePath(pathname, routePaths.signup)) return 'signup'
-  if (matchesRoutePath(pathname, routePaths.householdSetup)) {
-    return 'householdSetup'
-  }
+  if (matchesRoutePath(pathname, routePaths.householdSetup)) return 'householdSetup'
   if (matchesRoutePath(pathname, routePaths.chores)) return 'chores'
+  if (matchesRoutePath(pathname, routePaths.rules)) return 'rules'
   if (matchesRoutePath(pathname, routePaths.household)) return 'household'
   return 'login'
 }
@@ -25,7 +25,7 @@ function matchesRoutePath(pathname: string, routePath: string) {
 }
 
 export function isProtectedRoute(route: AppRoute) {
-  return route === 'household' || route === 'householdSetup' || route === 'chores'
+  return route === 'household' || route === 'householdSetup' || route === 'chores' || route === 'rules'
 }
 
 export function getPostLoginRoute(auth: AuthState): AppRoute {
@@ -55,6 +55,10 @@ export function getAuthRedirectRoute(
   }
 
   if (route === 'chores' && !auth.has_household) {
+    return 'householdSetup'
+  }
+
+  if (route === 'rules' && !auth.has_household) {
     return 'householdSetup'
   }
 
