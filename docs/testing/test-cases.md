@@ -406,9 +406,9 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | User authored a rule and completed a chore, then left the household (issues excluded — no API yet) |
 | Steps | 1. A remaining member views those items. |
-| Expected result | Authorship is preserved and shown as "[former member] Name" |
-| Status | Fail |
-| Actual result (if Fail) | Rule author renders plain 'Gail', not '[former member] Gail' (chores apply the prefix correctly). The chore-completion half of this case is not verifiable because chore writes currently return HTTP 500 (see TC-CHORE-12 / TC-CHORE-13). |
+| Expected result | Authorship is preserved with the original `display_name` and `is_current_member: false` for the former member |
+| Status | Pass |
+| Actual result (if Fail) | |
 | Severity (if Fail) | Minor |
 
 ### TC-HOUSE-16 — Household data isolation (cross-household access denied)

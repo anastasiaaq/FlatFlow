@@ -36,7 +36,7 @@ See [docs/user-stories.md](docs/user-stories.md) for the full breakdown.
 | Database | PostgreSQL |
 | Auth | Session-based, HTTP-only cookies |
 | Containerization | Docker & Docker Compose |
-| Deployment | AWS EC2 |
+| Deployment | Hetzner Cloud VPS |
 
 ## Setup
 
@@ -59,7 +59,7 @@ Start the full project from the `src` directory:
 
 ```bash
 cd src
-docker compose up --build
+docker compose --profile dev up -d --build
 ```
 
 Then open:

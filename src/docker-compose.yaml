@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     env_file:
       - ./backend/.env
     depends_on:
@@ -19,12 +19,13 @@ services:
       start_period: 10s
     container_name: flatflow-backend
 
-
   frontend:
+    profiles: ["dev"]
     build:
       context: ./frontend
+      target: dev
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     env_file:
       - ./frontend/.env
     volumes:
@@ -35,13 +36,21 @@ services:
         condition: service_healthy
     container_name: flatflow-frontend
 
+  frontend-static:
+    profiles: ["prod"]
+    build:
+      context: ./frontend
+      target: static-export
+    volumes:
+      - "${FRONTEND_DIST_PATH:-./frontend/dist}:/out"
+    container_name: flatflow-frontend-static
 
   flatflow-db:
     image: postgres:16-alpine
     env_file:
       - ./backend/.env
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

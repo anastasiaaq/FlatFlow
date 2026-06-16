@@ -26,7 +26,7 @@ class ChoreRepository:
 
     def get_household_chore_for_update(self, *, household, chore_id):
         return (
-            Chore.objects.select_for_update()
+            Chore.objects.select_for_update(of=("self",))
             .select_related(
                 "assignee",
                 "completed_by",

@@ -1,40 +1,47 @@
-type NavPage = 'household' | 'rules' | 'chores' | 'issues'
+import type { Page } from '../types/navigation'
 
 type NavbarProps = {
-  activePage?: NavPage
   householdName?: string
   userName?: string
-  onNavigate?: (page: NavPage) => void
-  onProfileOpen?: () => void
+  activePage?: Page
   onLogout?: () => void
+  onProfileOpen?: () => void
+  onNavigate?: (page: Page) => void
 }
 
-const navItems: Array<{ key: NavPage; label: string }> = [
-  { key: 'household', label: 'Household' },
-  { key: 'rules', label: 'Rules' },
-  { key: 'chores', label: 'Chores' },
-  { key: 'issues', label: 'Issues' },
-]
-
 export default function Navbar({
-  activePage = 'rules',
   householdName,
   userName,
-  onNavigate,
-  onProfileOpen,
+  activePage = 'household',
   onLogout,
+  onProfileOpen,
+  onNavigate,
 }: NavbarProps) {
-  return (
-    <header className="navbar">
-      <span className="navbar__brand">FlatFlow</span>
+  const navItems = [
+    { key: 'household', label: 'Household', disabled: false },
+    { key: 'rules', label: 'Rules', disabled: true },
+    { key: 'chores', label: 'Chores', disabled: false },
+    { key: 'issues', label: 'Issues', disabled: true },
+  ] as const
 
-      <nav className="navbar__links">
-        {navItems.map(({ key, label }) => (
+  return (
+    <header className="w-full h-[90px] bg-[#fdd329] flex items-center px-[154px] shrink-0">
+      <span className="text-[#0b0a0f] text-[30px] font-semibold mr-[80px] whitespace-nowrap">
+        FlatFlow
+      </span>
+
+      <nav className="flex items-center gap-[50px] flex-1">
+        {navItems.map(({ key, label, disabled }) => (
           <button
             key={key}
             type="button"
-            className={`navbar__link ${activePage === key ? 'navbar__link--active' : ''}`}
-            onClick={() => onNavigate?.(key)}
+            onClick={() => !disabled && onNavigate?.(key)}
+            disabled={disabled}
+            className={`text-[#0b0a0f] text-[16px] font-semibold whitespace-nowrap px-[10px] py-[4px] ${
+              activePage === key
+                ? 'border border-[#0b0a0f] rounded-[7px]'
+                : ''
+            } ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             {label}
           </button>
