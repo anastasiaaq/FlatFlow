@@ -18,10 +18,10 @@ export default function Navbar({
   onNavigate,
 }: NavbarProps) {
   const navItems = [
-    { key: 'household', label: 'Household' },
-    { key: 'rules', label: 'Rules' },
-    { key: 'chores', label: 'Chores' },
-    { key: 'issues', label: 'Issues' },
+    { key: 'household', label: 'Household', disabled: false },
+    { key: 'rules', label: 'Rules', disabled: true },
+    { key: 'chores', label: 'Chores', disabled: false },
+    { key: 'issues', label: 'Issues', disabled: true },
   ] as const
 
   return (
@@ -31,16 +31,17 @@ export default function Navbar({
       </span>
 
       <nav className="flex items-center gap-[50px] flex-1">
-        {navItems.map(({ key, label }) => (
+        {navItems.map(({ key, label, disabled }) => (
           <button
             key={key}
             type="button"
-            onClick={() => onNavigate?.(key)}
+            onClick={() => !disabled && onNavigate?.(key)}
+            disabled={disabled}
             className={`text-[#0b0a0f] text-[16px] font-semibold whitespace-nowrap px-[10px] py-[4px] ${
               activePage === key
                 ? 'border border-[#0b0a0f] rounded-[7px]'
                 : ''
-            }`}
+            } ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             {label}
           </button>

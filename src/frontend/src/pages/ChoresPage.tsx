@@ -66,7 +66,15 @@ const STATUS_COLORS: Record<string, string> = {
   ACTIVE: '#b9d8e6',
 }
 
+const ASSIGNEE_COLORS = [
+  '#b9d8e6', '#d4b9e6', '#b9e6d4', '#e6d4b9', '#e6b9d4',
+  '#c4d4b9', '#b9c4e6', '#e6c4b9', '#d4e6b9', '#c4b9e6',
+]
+
 function getChoreColor(chore: ChoreDetail): string {
+  if (chore.status === 'ACTIVE' && chore.assignee) {
+    return ASSIGNEE_COLORS[chore.assignee.id % ASSIGNEE_COLORS.length]
+  }
   return STATUS_COLORS[chore.status] ?? '#b9d8e6'
 }
 
@@ -201,7 +209,7 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
   }
 
   const currentMember = household?.members.find((m) => m.id === currentUserId)
-  const displayName = currentMember?.display_name ?? currentUserName
+  const displayName = currentUserName ?? currentMember?.display_name
   const weeks = getCalendarWeeks(year, month)
   const members = (household?.members ?? []) as Array<{ id: number; display_name: string }>
 
