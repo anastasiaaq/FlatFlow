@@ -9,6 +9,7 @@ import {
   updateRule,
   type AuthState,
   type RuleDetail,
+  type UserProfile,
 } from '../api'
 import Navbar from '../components/Navbar'
 import ProfileModal from '../components/ProfileModal'
@@ -32,9 +33,10 @@ type NavPage = 'household' | 'rules' | 'chores' | 'issues'
 type RulesPageProps = {
   onNavigate?: (page: NavPage) => void
   onLogout?: () => void
+  onProfileUpdated?: (profile: UserProfile) => void
 }
 
-export default function RulesPage({ onNavigate, onLogout }: RulesPageProps) {
+export default function RulesPage({ onNavigate, onLogout, onProfileUpdated }: RulesPageProps) {
   const [rules, setRules] = useState<RuleDetail[]>([])
   const [householdName, setHouseholdName] = useState('')
   const [user, setUser] = useState<AuthState['user']>(null)
@@ -224,6 +226,7 @@ export default function RulesPage({ onNavigate, onLogout }: RulesPageProps) {
           onProfileUpdated={(profile) => {
             setUserName(profile.display_name)
             setUser((u) => u ? { ...u, display_name: profile.display_name } : u)
+            onProfileUpdated?.(profile)
           }}
         />
       )}

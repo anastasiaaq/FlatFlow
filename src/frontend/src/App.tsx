@@ -163,6 +163,7 @@ function App() {
       <RulesPage
         onNavigate={handleNavNavigate}
         onLogout={handleLogout}
+        onProfileUpdated={handleProfileUpdated}
       />
     )
   }
