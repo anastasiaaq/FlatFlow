@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import { apiHouseholdsCurrentRetrieve, apiHouseholdsLeaveCreate } from '../api/generated/households/households'
 import type { HouseholdDetail } from '../api/generated/flatFlowAPI.schemas'
+import type { Page } from '../types/navigation'
 
 type Props = {
   currentUserId?: number
@@ -9,7 +10,7 @@ type Props = {
   onLogout?: () => void
   onProfileOpen?: () => void
   onHouseholdLeft?: () => void
-  onNavigate?: (page: 'household' | 'rules' | 'chores' | 'issues') => void
+  onNavigate?: (page: Page) => void
 }
 
 export default function HouseholdPage({

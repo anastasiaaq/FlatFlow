@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import type { ChoreDetail, ChoreCreate, TypeEnum } from '../../api/generated/flatFlowAPI.schemas'
+import type { ChoreDetail, ChoreCreate, ChoreUpdate, TypeEnum } from '../../api/generated/flatFlowAPI.schemas'
 
 interface Props {
   mode: 'add' | 'edit'
   chore?: ChoreDetail
   members: Array<{ id: number; display_name: string }>
-  onSubmit: (data: ChoreCreate) => Promise<void>
+  onSubmit: (data: ChoreCreate | ChoreUpdate) => Promise<void>
   onClose: () => void
   onDelete?: () => void
 }
@@ -36,16 +36,18 @@ export default function ChoreFormModal({
     setSubmitting(true)
     setError(null)
     try {
-      const base = {
-        type,
+      const commonFields = {
         title: title.trim(),
         description: description.trim() || undefined,
         assignee_id: assigneeId ? Number(assigneeId) : null,
       }
-      const data: ChoreCreate =
-        type === 'TASK'
-          ? { ...base, due_date: endDate || null }
-          : { ...base, start_date: startDate || null, end_date: endDate || null }
+      const data: ChoreCreate | ChoreUpdate = mode === 'edit'
+        ? type === 'TASK'
+          ? { ...commonFields, due_date: endDate || null }
+          : { ...commonFields, start_date: startDate || null, end_date: endDate || null }
+        : type === 'TASK'
+          ? { ...commonFields, type, due_date: endDate || null }
+          : { ...commonFields, type, start_date: startDate || null, end_date: endDate || null }
       await onSubmit(data)
     } catch {
       setError('Something went wrong. Please try again.')

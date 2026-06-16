@@ -1,10 +1,12 @@
+import type { Page } from '../types/navigation'
+
 type NavbarProps = {
   householdName?: string
   userName?: string
-  activePage?: 'household' | 'rules' | 'chores' | 'issues'
+  activePage?: Page
   onLogout?: () => void
   onProfileOpen?: () => void
-  onNavigate?: (page: 'household' | 'rules' | 'chores' | 'issues') => void
+  onNavigate?: (page: Page) => void
 }
 
 export default function Navbar({

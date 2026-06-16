@@ -43,7 +43,8 @@ export default function DeleteChoreModal({ choreTitle, onConfirm, onCancel }: Pr
               Delete chore
             </h3>
             <p className="text-[#000] text-[14px] font-normal">
-              Are you sure you want to delete this chore?
+              Are you sure you want to delete{' '}
+              <strong>{choreTitle || 'this chore'}</strong>?
             </p>
             <p className="text-black/55 text-[14px] font-light mt-[6px] max-w-[200px]">
               This action cannot be undone.

@@ -3,6 +3,7 @@ import type {
   AuthState,
   UserProfile,
 } from './api/generated/flatFlowAPI.schemas'
+import type { Page } from './types/navigation'
 import {
   apiUsersCsrfRetrieve,
   apiUsersLogoutCreate,
@@ -90,7 +91,7 @@ function App() {
     navigate('household', true)
   }
 
-  function handleNavNavigate(page: 'household' | 'rules' | 'chores' | 'issues') {
+  function handleNavNavigate(page: Page) {
     if (page === 'chores') navigate('chores')
     else if (page === 'household') navigate('household')
   }

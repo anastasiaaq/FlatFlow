@@ -12,8 +12,10 @@ import { apiHouseholdsCurrentRetrieve } from '../api/generated/households/househ
 import type {
   ChoreDetail,
   ChoreCreate,
+  ChoreUpdate,
   HouseholdDetail,
 } from '../api/generated/flatFlowAPI.schemas'
+import type { Page } from '../types/navigation'
 
 // ── date helpers ──────────────────────────────────────────────────────────────
 
@@ -23,12 +25,12 @@ function parseISODate(str: string): Date {
 }
 
 function getChoreStart(chore: ChoreDetail): Date {
-  const s = chore.start_date ?? chore.due_date ?? chore.created_at.slice(0, 10)
+  const s = chore.start_date ?? chore.due_date ?? (chore.created_at ? chore.created_at.slice(0, 10) : '1970-01-01')
   return parseISODate(s)
 }
 
 function getChoreEnd(chore: ChoreDetail): Date {
-  const e = chore.end_date ?? chore.due_date ?? chore.created_at.slice(0, 10)
+  const e = chore.end_date ?? chore.due_date ?? (chore.created_at ? chore.created_at.slice(0, 10) : '1970-01-01')
   return parseISODate(e)
 }
 
@@ -49,6 +51,10 @@ function getCalendarWeeks(year: number, month: number): Date[][] {
     if (weeks.length >= 6) break
   }
   return weeks
+}
+
+function toMidnight(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }
 
 // ── chore bar logic ───────────────────────────────────────────────────────────
@@ -90,13 +96,17 @@ function getWeekSegments(week: Date[], chores: ChoreDetail[]): Segment[] {
     const choreStart = getChoreStart(chore)
     const choreEnd = getChoreEnd(chore)
 
+    const choreStartMid = toMidnight(choreStart)
+    const choreEndMid = toMidnight(choreEnd)
+    const weekStartMid = toMidnight(weekStart)
+
     const startCol = Math.max(
       0,
-      Math.round((choreStart.getTime() - weekStart.getTime()) / 86_400_000),
+      Math.round((choreStartMid.getTime() - weekStartMid.getTime()) / 86_400_000),
     )
     const endCol = Math.min(
       6,
-      Math.round((choreEnd.getTime() - weekStart.getTime()) / 86_400_000),
+      Math.round((choreEndMid.getTime() - weekStartMid.getTime()) / 86_400_000),
     )
     const colSpan = Math.max(1, endCol - startCol + 1)
 
@@ -122,8 +132,6 @@ const BAR_GAP = 4           // px — space between bars
 const ROW_BOTTOM_PAD = 8    // px — padding below last bar
 
 // ── page component ────────────────────────────────────────────────────────────
-
-type Page = 'household' | 'rules' | 'chores' | 'issues'
 
 type Props = {
   currentUserId?: number
@@ -178,7 +186,7 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
     setShowAddModal(false)
   }
 
-  async function handleChoreUpdated(id: number, data: ChoreCreate) {
+  async function handleChoreUpdated(id: number, data: ChoreUpdate) {
     const res = await apiChoresUpdate(id, data)
     if (res.status !== 200) throw new Error('Failed to update chore')
     setChores((prev) => prev.map((c) => (c.id === id ? res.data : c)))
@@ -381,7 +389,7 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
         <ChoreFormModal
           mode="add"
           members={members}
-          onSubmit={handleChoreCreated}
+          onSubmit={(data) => handleChoreCreated(data as ChoreCreate)}
           onClose={() => setShowAddModal(false)}
         />
       )}
