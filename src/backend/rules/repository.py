@@ -32,6 +32,9 @@ class RuleRepository:
             created_by=created_by,
         )
 
+    def list_member_ids(self, household):
+        return set(household.memberships.values_list("user_id", flat=True))
+
     def save(self, rule):
         rule.save()
         return rule

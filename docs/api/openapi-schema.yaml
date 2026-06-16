@@ -789,9 +789,13 @@ components:
         display_name:
           type: string
           readOnly: true
+        is_current_member:
+          type: boolean
+          readOnly: true
       required:
       - display_name
       - id
+      - is_current_member
     ChoreStatus:
       enum:
       - ACTIVE
@@ -970,9 +974,13 @@ components:
         display_name:
           type: string
           readOnly: true
+        is_current_member:
+          type: boolean
+          readOnly: true
       required:
       - display_name
       - id
+      - is_current_member
     RuleWrite:
       type: object
       properties:

@@ -30,13 +30,15 @@ class ChoreListRequest:
 class ChoreMemberView:
     id: int
     display_name: str
+    is_current_member: bool
 
     @classmethod
     def from_user(cls, user, member_ids) -> "ChoreMemberView":
-        display_name = user.display_name
-        if user.id not in member_ids:
-            display_name = f"[former member] {display_name}"
-        return cls(id=user.id, display_name=display_name)
+        return cls(
+            id=user.id,
+            display_name=user.display_name,
+            is_current_member=user.id in member_ids,
+        )
 
 
 @dataclass
