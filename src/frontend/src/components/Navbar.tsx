@@ -48,27 +48,30 @@ export default function Navbar({
         ))}
       </nav>
 
-      <div className="flex items-center gap-[12px] text-[16px] font-bold text-[#0b0a0f]">
+      <div className="navbar__account">
         {householdName && <span>{householdName}</span>}
         <button
           type="button"
+          className="navbar__profile"
           onClick={onProfileOpen}
-          className="flex items-center gap-[12px] rounded-[7px] px-[6px] py-[4px] font-bold hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0b0a0f]"
-          aria-label="Open profile"
         >
           {userName && <span>{userName}</span>}
           <svg width="16" height="7" viewBox="0 0 16 7" fill="none">
-            <path d="M1 1L8 6L15 1" stroke="#0b0a0f" strokeWidth="1.5" strokeLinecap="round" />
+            <path
+              d="M1 1L8 6L15 1"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeWidth="1.5"
+            />
           </svg>
         </button>
-        {onLogout && (
-          <button
-            onClick={onLogout}
-            className="ml-[10px] rounded-[7px] border border-[#0b0a0f] px-[10px] py-[4px] text-[16px] font-semibold hover:opacity-70"
-          >
-            Log out
-          </button>
-        )}
+        <button
+          type="button"
+          className="navbar__logout"
+          onClick={onLogout}
+        >
+          Log out
+        </button>
       </div>
     </header>
   )
