@@ -267,62 +267,7 @@ export default function HouseholdPage({
         © 2026 Bratiuk, Horalevych, Dvoilenko, Tsepkalo
       </footer>
 
-      {profileOpen && (
-        <ProfileModal
-          initialName={navbarUserName ?? ''}
-          onClose={() => setProfileOpen(false)}
-          onProfileUpdated={(profile) => setUserName(profile.display_name)}
-        />
-      )}
     </div>
   )
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-function CopyIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <rect
-        x="9"
-        y="9"
-        width="13"
-        height="13"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <path
-        d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-    </svg>
-  )
-}
-
-function WarningIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"
-        stroke="#cb322d"
-        strokeWidth="2"
-      />
-      <path d="M12 9v4" stroke="#cb322d" strokeLinecap="round" strokeWidth="2" />
-      <path d="M12 17h.01" stroke="#cb322d" strokeLinecap="round" strokeWidth="3" />
-    </svg>
-  )
-}
-      <footer className="border-t border-[#b3b3b3] bg-[#fffef7] py-[12px] text-center text-[#0b0a0f] text-[14px]">
-        © 2026 Bratiuk, Horalevych, Dvoilenko, Tsepkalo
-      </footer>
-    </div>
-  )
-}

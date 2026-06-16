@@ -7,6 +7,7 @@ import {
   getCurrentUser,
   listRules,
   updateRule,
+  type AuthState,
   type RuleDetail,
 } from '../api'
 import Navbar from '../components/Navbar'
@@ -36,6 +37,7 @@ type RulesPageProps = {
 export default function RulesPage({ onNavigate, onLogout }: RulesPageProps) {
   const [rules, setRules] = useState<RuleDetail[]>([])
   const [householdName, setHouseholdName] = useState('')
+  const [user, setUser] = useState<AuthState['user']>(null)
   const [userName, setUserName] = useState('')
   const [newRuleText, setNewRuleText] = useState('')
   const [modal, setModal] = useState<ModalState>(null)
@@ -57,6 +59,7 @@ export default function RulesPage({ onNavigate, onLogout }: RulesPageProps) {
 
         setRules(sortRulesChronologically(rulesResponse.data))
         setHouseholdName(householdResponse?.data.name ?? '')
+        setUser(userResponse?.data.user ?? null)
         setUserName(userResponse?.data.user?.display_name ?? '')
       } catch {
         setError('Could not load rules.')
@@ -196,14 +199,6 @@ export default function RulesPage({ onNavigate, onLogout }: RulesPageProps) {
                 />
               )}
 
-              {modal?.type === 'delete' && (
-                <DeleteRulePanel
-                  rule={modal.rule}
-                  saving={saving}
-                  onClose={() => setModal(null)}
-                  onDelete={handleDeleteRule}
-                />
-              )}
             </aside>
           </div>
         )}
@@ -213,11 +208,23 @@ export default function RulesPage({ onNavigate, onLogout }: RulesPageProps) {
         © 2026 Bratiuk, Horalevych, Dvoilenko, Tsepkalo
       </footer>
 
+      {modal?.type === 'delete' && (
+        <DeleteRulePanel
+          rule={modal.rule}
+          saving={saving}
+          onClose={() => setModal(null)}
+          onDelete={handleDeleteRule}
+        />
+      )}
+
       {profileOpen && (
         <ProfileModal
-          initialName={userName}
+          user={user}
           onClose={() => setProfileOpen(false)}
-          onProfileUpdated={(profile) => setUserName(profile.display_name)}
+          onProfileUpdated={(profile) => {
+            setUserName(profile.display_name)
+            setUser((u) => u ? { ...u, display_name: profile.display_name } : u)
+          }}
         />
       )}
     </div>
@@ -374,29 +381,42 @@ function DeleteRulePanel({
   onDelete: (rule: RuleDetail) => void
 }) {
   return (
-    <section className="delete-modal" role="dialog" aria-modal="true">
-      <h2>Delete rule</h2>
-      <div className="delete-modal__body">
-        <WarningIcon />
-        <div>
-          <p>Are you sure you want to delete this rule?</p>
-          <span>This action cannot be undone.</span>
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+      <div className="bg-[#fbf4f1] rounded-[11px] border border-[#d8bdbd] w-[375px] p-[28px]">
+        <div className="flex items-start gap-[14px] mb-[20px]">
+          <WarningIcon />
+          <div>
+            <h3 className="text-[#cb322d] text-[16px] font-semibold mb-[8px]">
+              Delete rule
+            </h3>
+            <p className="text-[#0b0a0f] text-[14px]">
+              Are you sure you want to delete this rule?
+            </p>
+            <p className="text-[#949494] text-[14px] font-light mt-[6px]">
+              This action cannot be undone.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-[12px]">
+          <button
+            type="button"
+            disabled={saving}
+            onClick={onClose}
+            className="rounded-[7px] border border-[#d8bdbd] px-[20px] h-[38px] text-[#0b0a0f] text-[16px] font-medium hover:bg-[#f5eded] transition-colors disabled:opacity-50"
+          >
+            CANCEL
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => onDelete(rule)}
+            className="bg-[#cb322d] rounded-[7px] px-[20px] h-[38px] text-[#f8eded] text-[16px] font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
+          >
+            {saving ? '...' : 'DELETE'}
+          </button>
         </div>
       </div>
-      <div className="delete-modal__actions">
-        <button type="button" className="button button--danger-secondary" onClick={onClose}>
-          Cancel
-        </button>
-        <button
-          type="button"
-          className="button button--danger"
-          disabled={saving}
-          onClick={() => onDelete(rule)}
-        >
-          Delete
-        </button>
-      </div>
-    </section>
+    </div>
   )
 }
 
@@ -441,13 +461,12 @@ function TrashIcon() {
 
 function WarningIcon() {
   return (
-    <svg width="41" height="41" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"
-        fill="#0b0a0f"
-      />
-      <path d="M12 8v6" stroke="#fffef7" strokeLinecap="round" strokeWidth="2" />
-      <path d="M12 17h.01" stroke="#fffef7" strokeLinecap="round" strokeWidth="3" />
-    </svg>
+    <div className="w-[45px] h-[45px] shrink-0 flex items-center justify-center rounded-full bg-[#cb322d]/10">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cb322d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    </div>
   )
 }

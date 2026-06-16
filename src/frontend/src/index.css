@@ -685,6 +685,7 @@ textarea:focus-visible {
   .household-layout {
     grid-template-columns: 1fr;
   }
+}
 @import "tailwindcss";
 
 :root {

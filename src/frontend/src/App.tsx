@@ -22,6 +22,7 @@ import ChoresPage from './pages/ChoresPage'
 import HouseholdPage from './pages/HouseholdPage'
 import HouseholdSetupPage from './pages/HouseholdSetupPage'
 import LoginPage from './pages/LoginPage'
+import RulesPage from './pages/RulesPage'
 import SignUpPage from './pages/SignUpPage'
 
 function App() {
@@ -94,6 +95,7 @@ function App() {
   function handleNavNavigate(page: Page) {
     if (page === 'chores') navigate('chores')
     else if (page === 'household') navigate('household')
+    else if (page === 'rules') navigate('rules')
   }
 
   function handleHouseholdLeft() {
@@ -153,6 +155,15 @@ function App() {
           />
         )}
       </>
+    )
+  }
+
+  if (activeRoute === 'rules') {
+    return (
+      <RulesPage
+        onNavigate={handleNavNavigate}
+        onLogout={handleLogout}
+      />
     )
   }
 
