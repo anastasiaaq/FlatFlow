@@ -1,12 +1,7 @@
 const API_BASE = getApiBaseUrl()
 
 function getApiBaseUrl() {
-  const configuredUrl = import.meta.env.VITE_API_BASE_URL
-
-  if (configuredUrl) return configuredUrl
-  if (import.meta.env.DEV) return 'http://localhost:8000'
-
-  throw new Error('VITE_API_BASE_URL must be configured outside development.')
+  return import.meta.env.VITE_API_BASE_URL ?? ''
 }
 
 export type RuleMember = {
