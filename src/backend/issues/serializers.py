@@ -35,6 +35,13 @@ class IssueUpdateSerializer(serializers.Serializer):
         required=False,
     )
 
+    def validate(self, attrs):
+        if not attrs:
+            raise serializers.ValidationError(
+                "At least one field must be provided."
+            )
+        return attrs
+
 
 class IssueFilterSerializer(serializers.Serializer):
     status = serializers.CharField(required=False, default="all")

@@ -86,6 +86,11 @@ class ChoreUpdateSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=ChoreStatus.choices, required=False)
 
     def validate(self, attrs):
+        if not attrs:
+            raise serializers.ValidationError(
+                "At least one field must be provided."
+            )
+
         chore_type = attrs.get("type")
         start_date = attrs.get("start_date")
         end_date = attrs.get("end_date")
