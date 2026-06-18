@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { SyntheticEvent } from 'react'
 import type { ChoreDetail, ChoreCreate, ChoreUpdate, TypeEnum } from '../../api/generated/flatFlowAPI.schemas'
 
 interface Props {
@@ -31,7 +32,7 @@ export default function ChoreFormModal({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
     setSubmitting(true)
     setError(null)
@@ -58,6 +59,22 @@ export default function ChoreFormModal({
 
   const inputClass =
     'w-full bg-[#fffef7] rounded-[7px] border border-[#d8d8bd] h-[43px] px-[12px] text-[#0b0a0f] text-[14px] placeholder-[#aaa] focus:outline-none focus:border-[#0b0a0f]'
+  const choreTypeOptions: Array<{
+    value: TypeEnum
+    label: string
+    description: string
+  }> = [
+    {
+      value: 'DUTY',
+      label: 'Duty',
+      description: 'Ongoing responsibility across a date range.\nExample: dishes this week.',
+    },
+    {
+      value: 'TASK',
+      label: 'Task',
+      description: 'One-time chore with a due date.\nExample: buying detergent.',
+    },
+  ]
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
@@ -88,22 +105,47 @@ export default function ChoreFormModal({
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-[20px]">
             {/* Type toggle */}
-            <div className="flex gap-[8px]">
-              {(['DUTY', 'TASK'] as TypeEnum[]).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => mode === 'add' && setType(t)}
-                  disabled={mode === 'edit'}
-                  className={`px-[16px] py-[7px] rounded-[7px] text-[14px] font-medium border transition-colors ${
-                    type === t
-                      ? 'bg-[#fdd329] border-[#0b0a0f] text-[#0b0a0f]'
-                      : 'bg-[#fffef7] border-[#d8d8bd] text-[#0b0a0f]'
-                  } ${mode === 'add' ? 'hover:border-[#0b0a0f] cursor-pointer' : 'cursor-default'}`}
-                >
-                  {t === 'TASK' ? 'Task' : 'Duty'}
-                </button>
-              ))}
+            <div>
+              <div className="flex items-baseline justify-between mb-[8px]">
+                <label className="text-[#0b0a0f] text-[16px] font-semibold">
+                  Type
+                </label>
+                {mode === 'edit' && (
+                  <span className="text-[#393939] text-[12px]">
+                    Cannot be changed after creation
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-[10px]">
+                {choreTypeOptions.map((option) => {
+                  const isSelected = type === option.value
+                  return (
+                    <div key={option.value} className="relative group">
+                      <button
+                        type="button"
+                        onClick={() => mode === 'add' && setType(option.value)}
+                        disabled={mode === 'edit'}
+                        aria-pressed={isSelected}
+                        aria-describedby={`chore-type-${option.value.toLowerCase()}-hint`}
+                        className={`w-full min-h-[43px] rounded-[7px] border px-[13px] py-[9px] text-center text-[14px] font-semibold transition-colors ${
+                          isSelected
+                            ? 'bg-[#fdd329] border-[#0b0a0f] text-[#0b0a0f]'
+                            : 'bg-[#fffef7] border-[#d8d8bd] text-[#0b0a0f]'
+                        } ${mode === 'add' ? 'hover:border-[#0b0a0f] cursor-pointer' : 'cursor-default opacity-80'}`}
+                      >
+                        {option.label}
+                      </button>
+                      <span
+                        id={`chore-type-${option.value.toLowerCase()}-hint`}
+                        role="tooltip"
+                        className="pointer-events-none absolute left-1/2 top-[calc(100%+8px)] z-10 w-[196px] -translate-x-1/2 whitespace-pre-line rounded-[7px] border border-[#d8d8bd] bg-[#fffef7] px-[10px] py-[8px] text-center text-[12px] font-normal leading-[1.35] text-[#393939] opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100"
+                      >
+                        {option.description}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
             {/* Title */}
