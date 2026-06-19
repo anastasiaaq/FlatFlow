@@ -7,6 +7,7 @@ import {
   toggleIssueStatus,
   updateIssue,
   type IssueDetail,
+  type IssueFilter,
 } from '../api/issues'
 import { getCurrentHousehold } from '../api'
 import Navbar from '../components/Navbar'
@@ -40,20 +41,33 @@ export default function IssuesPage({
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [panel, setPanel] = useState<PanelState>(null)
+  const [filter, setFilter] = useState<IssueFilter>('all')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [toggling, setToggling] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([listIssues(), getCurrentHousehold().catch(() => null)])
+    let active = true
+
+    Promise.all([listIssues(filter), getCurrentHousehold().catch(() => null)])
       .then(([issuesResponse, householdResponse]) => {
+        if (!active) return
         setIssues(issuesResponse.data)
         setHouseholdName(householdResponse?.data.name ?? '')
       })
-      .catch(() => setError('Could not load issues.'))
-      .finally(() => setLoading(false))
-  }, [])
+      .catch(() => {
+        if (active) setError('Could not load issues.')
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [filter])
 
   async function prepareMutation() {
     await apiUsersCsrfRetrieve()
@@ -74,7 +88,9 @@ export default function IssuesPage({
     try {
       await prepareMutation()
       const response = await createIssue(title.trim(), description.trim())
-      setIssues((current) => [response.data, ...current])
+      if (issueMatchesFilter(response.data, filter)) {
+        setIssues((current) => [response.data, ...current])
+      }
       setTitle('')
       setDescription('')
     } catch {
@@ -126,12 +142,21 @@ export default function IssuesPage({
   }
 
   async function handleToggle(issue: IssueDetail) {
+    if (toggling) return
+
+    setToggling(true)
+
     try {
       await prepareMutation()
       const response = await toggleIssueStatus(issue.id)
-      setIssues((current) => sortIssues(replaceIssue(current, response.data)))
+      setIssues((current) => {
+        const updated = replaceIssue(current, response.data)
+        return sortIssues(updated.filter((item) => issueMatchesFilter(item, filter)))
+      })
     } catch {
       setError('Could not update issue status.')
+    } finally {
+      setToggling(false)
     }
   }
 
@@ -150,6 +175,24 @@ export default function IssuesPage({
         <section className="page-heading">
           <h1>Issues</h1>
           <p>Shared occurred issues to solve them faster.</p>
+          <div className="issues-filter" aria-label="Filter issues">
+            {(['all', 'open', 'resolved'] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={filter === option ? 'issues-filter__button--active' : ''}
+                aria-pressed={filter === option}
+                onClick={() => {
+                  if (option === filter) return
+                  setLoading(true)
+                  setError(null)
+                  setFilter(option)
+                }}
+              >
+                {option[0].toUpperCase() + option.slice(1)}
+              </button>
+            ))}
+          </div>
         </section>
 
         {loading && <p className="issues-message">Loading...</p>}
@@ -160,7 +203,7 @@ export default function IssuesPage({
             <section className="issues-list" aria-label="Household issues">
               {issues.length === 0 && (
                 <div className="issue-card issue-card--empty">
-                  No issues yet. Add the first one for your household.
+                  {getEmptyStateMessage(filter)}
                 </div>
               )}
 
@@ -172,6 +215,7 @@ export default function IssuesPage({
                   onEdit={() => setPanel({ type: 'edit', issue })}
                   onDelete={() => setPanel({ type: 'delete', issue })}
                   onToggle={() => handleToggle(issue)}
+                  toggleDisabled={toggling}
                 />
               ))}
             </section>
@@ -233,18 +277,25 @@ function IssueCard({
   onEdit,
   onDelete,
   onToggle,
+  toggleDisabled,
 }: {
   issue: IssueDetail
   canManage: boolean
   onEdit: () => void
   onDelete: () => void
   onToggle: () => void
+  toggleDisabled: boolean
 }) {
   return (
     <article className="issue-card">
       <div className="issue-card__top">
         <h2>{issue.title}</h2>
-        <button type="button" className="issue-status" onClick={onToggle}>
+        <button
+          type="button"
+          className="issue-status"
+          disabled={toggleDisabled}
+          onClick={onToggle}
+        >
           {issue.status === 'OPEN' ? 'Open' : 'Resolved'}
         </button>
       </div>
@@ -335,6 +386,21 @@ function EditIssuePanel({
   const [title, setTitle] = useState(issue.title)
   const [description, setDescription] = useState(issue.description)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+
+    queueMicrotask(() => {
+      if (!active) return
+      setTitle(issue.title)
+      setDescription(issue.description)
+      setError(null)
+    })
+
+    return () => {
+      active = false
+    }
+  }, [issue])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -469,6 +535,17 @@ function sortIssues(issues: IssueDetail[]) {
     if (left.status !== right.status) return left.status === 'OPEN' ? -1 : 1
     return new Date(right.created_at).getTime() - new Date(left.created_at).getTime()
   })
+}
+
+function issueMatchesFilter(issue: IssueDetail, filter: IssueFilter) {
+  if (filter === 'all') return true
+  return issue.status === filter.toUpperCase()
+}
+
+function getEmptyStateMessage(filter: IssueFilter) {
+  if (filter === 'open') return 'No open issues.'
+  if (filter === 'resolved') return 'No resolved issues.'
+  return 'No issues yet. Add the first one for your household.'
 }
 
 function formatIssueDate(iso: string) {

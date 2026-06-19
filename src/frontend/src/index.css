@@ -653,6 +653,32 @@ textarea:focus-visible {
   padding: 47px 154px 80px;
 }
 
+.issues-filter {
+  display: inline-flex;
+  margin-top: 18px;
+  padding: 3px;
+  border: 1px solid #d8d8bd;
+  border-radius: 7px;
+  background: #f8f8ed;
+}
+
+.issues-filter button {
+  min-width: 76px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #393939;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.issues-filter .issues-filter__button--active {
+  background: #fdd329;
+  color: #0b0a0f;
+  font-weight: 600;
+}
+
 .issues-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 375px;
