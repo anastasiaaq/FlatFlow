@@ -25,6 +25,7 @@ pnpm-debug.log*
 
 # Frontend
 node_modules/
+.pnpm-store/
 dist/
 build/
 coverage/

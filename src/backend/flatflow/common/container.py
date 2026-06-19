@@ -6,6 +6,8 @@ from chores.repository import ChoreRepository
 from chores.service import ChoreService
 from households.repository import HouseholdRepository
 from households.service import HouseholdService
+from issues.repository import IssueRepository
+from issues.service import IssueService
 from rules.repository import RuleRepository
 from rules.service import RuleService
 
@@ -38,6 +40,14 @@ class Container(containers.DeclarativeContainer):
     rule_service = providers.Factory(
         RuleService,
         rule_repository=rule_repository,
+        household_repository=household_repository,
+    )
+
+    issue_repository = providers.Factory(IssueRepository)
+
+    issue_service = providers.Factory(
+        IssueService,
+        issue_repository=issue_repository,
         household_repository=household_repository,
     )
 
