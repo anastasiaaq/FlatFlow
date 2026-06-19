@@ -12,5 +12,5 @@
     "outDir": ".tmp/tests",
     "rootDir": "src"
   },
-  "include": ["src/**/*.test.ts", "src/rules.ts"]
+  "include": ["src/**/*.test.ts", "src/rules.ts", "src/issues.ts"]
 }

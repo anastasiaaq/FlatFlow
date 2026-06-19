@@ -21,6 +21,7 @@ import ProfileModal from './components/ProfileModal'
 import ChoresPage from './pages/ChoresPage'
 import HouseholdPage from './pages/HouseholdPage'
 import HouseholdSetupPage from './pages/HouseholdSetupPage'
+import IssuesPage from './pages/IssuesPage'
 import LoginPage from './pages/LoginPage'
 import RulesPage from './pages/RulesPage'
 import SignUpPage from './pages/SignUpPage'
@@ -96,6 +97,7 @@ function App() {
     if (page === 'chores') navigate('chores')
     else if (page === 'household') navigate('household')
     else if (page === 'rules') navigate('rules')
+    else if (page === 'issues') navigate('issues')
   }
 
   function handleHouseholdLeft() {
@@ -165,6 +167,27 @@ function App() {
         onLogout={handleLogout}
         onProfileUpdated={handleProfileUpdated}
       />
+    )
+  }
+
+  if (activeRoute === 'issues') {
+    return (
+      <>
+        <IssuesPage
+          currentUserId={auth?.user?.id}
+          currentUserName={auth?.user?.display_name}
+          onLogout={handleLogout}
+          onProfileOpen={() => setProfileOpen(true)}
+          onNavigate={handleNavNavigate}
+        />
+        {profileOpen && (
+          <ProfileModal
+            user={auth?.user}
+            onClose={() => setProfileOpen(false)}
+            onProfileUpdated={handleProfileUpdated}
+          />
+        )}
+      </>
     )
   }
 

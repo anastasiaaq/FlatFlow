@@ -60,4 +60,4 @@ The full set of test cases lives in [`test-cases.md`](./test-cases.md) — one t
 | Rules (US-5.1–5.3) | TC-RULE-01…06 | 6 | text bounds, last-modified-by, empty state |
 | **Total** | | **74** | |
 
-Issues cases (TC-ISSUE-*) are currently `Blocked` — the Issues API is not yet implemented.
+Issues cases (TC-ISSUE-*) are ready to run against the implemented Issues API and frontend flows.

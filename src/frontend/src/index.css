@@ -648,6 +648,227 @@ textarea:focus-visible {
   font-size: 14px;
 }
 
+.issues-page {
+  flex: 1;
+  padding: 47px 154px 80px;
+}
+
+.issues-filter {
+  display: inline-flex;
+  margin-top: 18px;
+  padding: 3px;
+  border: 1px solid #d8d8bd;
+  border-radius: 7px;
+  background: #f8f8ed;
+}
+
+.issues-filter button {
+  min-width: 76px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #393939;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.issues-filter .issues-filter__button--active {
+  background: #fdd329;
+  color: #0b0a0f;
+  font-weight: 600;
+}
+
+.issues-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 375px;
+  align-items: start;
+  gap: 34px;
+  margin-top: 33px;
+}
+
+.issues-list,
+.issues-side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.issues-side-panel {
+  gap: 24px;
+}
+
+.issue-card,
+.issue-form,
+.issue-delete-panel {
+  border: 1px solid #d8d8bd;
+  border-radius: 11px;
+  background: #f8f8ed;
+}
+
+.issue-card {
+  min-height: 107px;
+  padding: 19px 28px;
+}
+
+.issue-card--empty,
+.issues-message {
+  color: #393939;
+  font-size: 14px;
+}
+
+.issue-card--empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.issue-card--empty p {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.issue-card--empty .button {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 130px;
+}
+
+.issues-message {
+  margin-top: 32px;
+}
+
+.issues-message--error,
+.issue-form__error {
+  color: #cb322d;
+}
+
+.issue-card__top,
+.issue-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.issue-card h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.issue-card p {
+  margin: 15px 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #d8d8bd;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.issue-card span {
+  font-size: 14px;
+}
+
+.issue-status {
+  border: 0;
+  background: transparent;
+  color: #0b0a0f;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.issue-card__actions {
+  display: flex;
+  gap: 14px;
+}
+
+.issue-form {
+  min-height: 285px;
+  padding: 24px 19px 18px;
+}
+
+.issue-form h2,
+.issue-delete-panel h2 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.issue-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.issue-field span {
+  display: flex;
+  justify-content: space-between;
+}
+
+.issue-field small {
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.issue-field input,
+.issue-field textarea {
+  width: 100%;
+  border: 1px solid #d8d8bd;
+  border-radius: 7px;
+  background: #fffef7;
+  color: #0b0a0f;
+  font-size: 12px;
+}
+
+.issue-field input {
+  height: 34px;
+  padding: 0 12px;
+}
+
+.issue-field textarea {
+  height: 100px;
+  resize: none;
+  padding: 11px 14px;
+}
+
+.issue-form__error {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.issue-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 30px;
+  margin-top: 19px;
+}
+
+.issue-delete-panel {
+  padding: 23px 19px 17px;
+  border-color: #d8bdbd;
+  background: #fbf4f1;
+}
+
+.issue-delete-panel h2 {
+  color: #cb322d;
+}
+
+.issue-delete-panel p {
+  margin: 24px 0 14px;
+  font-size: 14px;
+}
+
+.issue-delete-panel > span {
+  color: #949494;
+  font-size: 14px;
+}
+
 .app-footer {
   height: 48px;
   display: flex;
@@ -677,13 +898,22 @@ textarea:focus-visible {
 @media (max-width: 1100px) {
   .navbar,
   .rules-page,
-  .household-page {
+  .household-page,
+  .issues-page {
     padding-left: 32px;
     padding-right: 32px;
   }
 
   .household-layout {
     grid-template-columns: 1fr;
+  }
+
+  .issues-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .issues-side-panel {
+    width: min(375px, 100%);
   }
 }
 @import "tailwindcss";

@@ -21,7 +21,7 @@ export default function Navbar({
     { key: 'household', label: 'Household', disabled: false },
     { key: 'rules', label: 'Rules', disabled: false },
     { key: 'chores', label: 'Chores', disabled: false },
-    { key: 'issues', label: 'Issues', disabled: true },
+    { key: 'issues', label: 'Issues', disabled: false },
   ] as const
 
   return (
