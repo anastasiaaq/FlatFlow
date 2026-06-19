@@ -127,7 +127,7 @@ export default function LandingPage({
     setSignupLoading(true)
     const payload = {
       email: signupEmail.trim(),
-      display_name: displayName,
+      display_name: displayName.trim(),
       password: signupPassword,
     }
 
@@ -525,7 +525,7 @@ export default function LandingPage({
               <button
                 type="button"
                 aria-label="Sign up"
-                className="relative z-30 h-full w-[120px] cursor-pointer focus-visible:outline-none"
+                className="relative z-30 h-full w-[120px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0b0a0f]"
                 onMouseEnter={() => setCtaHighlight('signup')}
                 onClick={() => {
                   setFormMode('signup')
@@ -535,7 +535,7 @@ export default function LandingPage({
               <button
                 type="button"
                 aria-label="Log in"
-                className="relative z-30 h-full w-[120px] cursor-pointer focus-visible:outline-none"
+                className="relative z-30 h-full w-[120px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0b0a0f]"
                 onMouseEnter={() => setCtaHighlight('login')}
                 onClick={() => {
                   switchToLogin()
