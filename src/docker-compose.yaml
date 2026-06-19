@@ -20,6 +20,7 @@ services:
     container_name: flatflow-backend
 
   frontend:
+    profiles: ["dev"]
     build:
       context: ./frontend
       target: dev
