@@ -557,7 +557,7 @@ export default function LandingPage({
               Less friction, more flat.
             </p>
           </div>
-          <p className="m-0 pb-[2px] text-[13px] text-[#595742]">© 2026</p>
+          <p className="m-0 pb-[2px] text-[13px] text-[#595742]">© 2026 Bratiuk, Horalevych, Dvoilenko, Tsepkalo</p>
         </div>
       </footer>
     </div>
