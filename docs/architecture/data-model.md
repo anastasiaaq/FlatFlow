@@ -1,8 +1,8 @@
 # Data Model
 
-The domain model the backend Django apps implement. Authentication/session
-tables (Django's built-in `User`, `Session`) are infrastructure and left out of
-the diagram.
+The domain model the backend Django apps implement. The app uses a custom
+`accounts.User` model (shown below); Django's `Session` table and built-in auth
+plumbing (groups, permissions) are infrastructure and left out of the diagram.
 
 ![FlatFlow domain model](./uml/domain-model.svg)
 

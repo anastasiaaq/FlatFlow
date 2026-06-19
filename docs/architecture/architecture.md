@@ -12,7 +12,7 @@ to `uml/high-level-design.svg`.
 ## Components
 
 - **Client** — a **React (TypeScript) SPA** (Vite build). Renders the UI, holds client-side state, and calls the API over HTTP. The typed API client is generated from the backend's OpenAPI schema with [orval](https://orval.dev).
-- **Server** — a **Django REST Framework** app. It returns **JSON only** (no server-rendered HTML) and holds all business logic.
+- **Server** — a **Django REST Framework** app that holds all business logic. Its API endpoints return JSON (the SPA renders the UI); the only server-rendered HTML is Django's admin and the auto-generated API docs.
 - **Database** — **PostgreSQL**, storing both application data and Django session records.
 
 Client and server are **decoupled**: separate deployables that communicate only
