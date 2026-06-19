@@ -261,15 +261,13 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
   async function handleMarkComplete(id: number) {
     const res = await apiChoresCompleteCreate(id)
     if (res.status !== 200) throw new Error('Failed to complete chore')
-    setChores((prev) => prev.map((c) => (c.id === id ? res.data : c)))
-    setEditingChore(null)
+    await loadData()
   }
 
   async function handleReopenChore(id: number) {
     const res = await apiChoresPartialUpdate(id, { status: 'ACTIVE' })
     if (res.status !== 200) throw new Error('Failed to reopen chore')
-    setChores((prev) => prev.map((c) => (c.id === id ? res.data : c)))
-    setEditingChore(null)
+    await loadData()
   }
 
   function clearFilters() {
