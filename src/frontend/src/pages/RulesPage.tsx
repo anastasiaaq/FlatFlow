@@ -23,6 +23,11 @@ import {
   wasRuleEdited,
 } from '../rules'
 
+function memberName(member: { display_name: string; is_current_member: boolean } | null | undefined): string {
+  if (!member) return ''
+  return member.is_current_member ? member.display_name : `[former member] ${member.display_name}`
+}
+
 type ModalState =
   | { type: 'edit'; rule: RuleDetail }
   | { type: 'delete'; rule: RuleDetail }
@@ -251,7 +256,7 @@ function RuleCard({
       <div className="rule-card__content">
         <h2>{rule.text}</h2>
         <p>
-          Added by <strong>{rule.created_by.display_name}</strong> on{' '}
+          Added by <strong>{memberName(rule.created_by)}</strong> on{' '}
           {formatRuleDate(rule.created_at)}
         </p>
       </div>
@@ -268,7 +273,7 @@ function RuleCard({
           rule.last_modified_by && (
             <p>
               Last edited on {formatRuleDate(rule.last_modified_at)} by{' '}
-              <strong>{rule.last_modified_by.display_name}</strong>
+              <strong>{memberName(rule.last_modified_by)}</strong>
             </p>
           )}
       </div>

@@ -154,28 +154,42 @@ export default function HouseholdPage({
                   All members have equal rights and permissions.
                 </p>
                 <div className="bg-[#fffef7] border border-[#d8d8bd] rounded-[11px] divide-y divide-[#d8d8bd]">
-                  {household.members.map((member) => {
-                    const isYou = member.id === currentUserId
-                    const isCreator = member.id === household.created_by.id
-                    return (
-                      <div
-                        key={member.id}
-                        className="flex items-center justify-between px-[22px] py-[14px]"
+                  {household.members.length === 1 ? (
+                    <div className="px-[22px] py-[20px] text-center">
+                      <p className="text-[#0b0a0f] text-[15px] mb-[12px]">
+                        You're the only one here yet — share your invite code to bring roommates in.
+                      </p>
+                      <button
+                        onClick={handleCopy}
+                        className="bg-[#fdd329] rounded-[7px] px-[20px] py-[8px] text-[#0b0a0f] text-[14px] font-medium hover:opacity-80 transition-opacity"
                       >
-                        <span className="text-[#0b0a0f] text-[16px] font-semibold">
-                          {getMemberDisplayName(member.id, member.display_name)}
-                          {isYou && (
-                            <span className="font-normal"> (You)</span>
-                          )}
-                        </span>
-                        {isCreator && (
-                          <span className="text-[#0b0a0f] text-[14px]">
-                            Creator
+                        {copied ? 'COPIED!' : 'Copy invite code'}
+                      </button>
+                    </div>
+                  ) : (
+                    household.members.map((member) => {
+                      const isYou = member.id === currentUserId
+                      const isCreator = member.id === household.created_by.id
+                      return (
+                        <div
+                          key={member.id}
+                          className="flex items-center justify-between px-[22px] py-[14px]"
+                        >
+                          <span className="text-[#0b0a0f] text-[16px] font-semibold">
+                            {getMemberDisplayName(member.id, member.display_name)}
+                            {isYou && (
+                              <span className="font-normal"> (You)</span>
+                            )}
                           </span>
-                        )}
-                      </div>
-                    )
-                  })}
+                          {isCreator && (
+                            <span className="text-[#0b0a0f] text-[14px]">
+                              Creator
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })
+                  )}
                 </div>
               </div>
             </div>

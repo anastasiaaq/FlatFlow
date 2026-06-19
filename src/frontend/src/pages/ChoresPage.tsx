@@ -67,6 +67,15 @@ function formatDateShort(iso: string | null | undefined): string {
   return `${months[parseInt(parts[1]) - 1]} ${parseInt(parts[2])}, ${parts[0]}`
 }
 
+function formatISODate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function memberName(member: { display_name: string; is_current_member: boolean } | null | undefined): string {
+  if (!member) return ''
+  return member.is_current_member ? member.display_name : `[former member] ${member.display_name}`
+}
+
 // ── chore bar logic ───────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, string> = {
@@ -199,6 +208,7 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingChore, setEditingChore] = useState<ChoreDetail | null>(null)
   const [deletingChore, setDeletingChore] = useState<ChoreDetail | null>(null)
+  const [prefillDate, setPrefillDate] = useState<string | null>(null)
 
   // filter & sort state
   const [filterAssignee, setFilterAssignee] = useState('any')
@@ -453,7 +463,9 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
                         return (
                           <div
                             key={di}
-                            className={`text-center flex items-center justify-center text-[28px] font-normal select-none ${
+                            onClick={() => { setPrefillDate(formatISODate(date)); setShowAddModal(true) }}
+                            title="Add chore on this day"
+                            className={`text-center flex items-center justify-center text-[28px] font-normal cursor-pointer hover:bg-[#e8e8d8] transition-colors ${
                               !isCurrentMonth
                                 ? 'text-black/30'
                                 : isWeekend
@@ -484,7 +496,7 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
                             backgroundColor: color,
                           }}
                           onClick={() => setEditingChore(chore)}
-                          title={`${chore.title}${chore.assignee ? ` · ${chore.assignee.display_name}` : ''}`}
+                          title={`${chore.title}${chore.assignee ? ` · ${memberName(chore.assignee)}` : ''}`}
                         >
                           <span className="text-[12px] px-[6px] text-[#0b0a0f] truncate leading-none font-normal">
                             {chore.title}
@@ -513,7 +525,7 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
                     >
                       {chore.title}
                       {chore.assignee && (
-                        <span className="text-[#393939]">· {chore.assignee.display_name}</span>
+                        <span className="text-[#393939]">· {memberName(chore.assignee)}</span>
                       )}
                     </button>
                   ))}
@@ -619,14 +631,14 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
                             </span>
                           </div>
                           <div className="text-[#393939] text-[13px] mt-[2px]">
-                            {chore.assignee ? chore.assignee.display_name : 'Unassigned'}
+                            {chore.assignee ? memberName(chore.assignee) : 'Unassigned'}
                             {' · '}
                             {choreDateInfo(chore)}
                           </div>
                           {chore.status === 'COMPLETED' && chore.completed_by && (
                             <div className="text-[#393939] text-[12px] mt-[3px]">
                               Completed by{' '}
-                              <span className="font-semibold">{chore.completed_by.display_name}</span>
+                              <span className="font-semibold">{memberName(chore.completed_by)}</span>
                               {chore.completed_at && (
                                 <> on {formatDateShort(chore.completed_at)}</>
                               )}
@@ -662,8 +674,9 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
         <ChoreFormModal
           mode="add"
           members={members}
+          prefillDate={prefillDate ?? undefined}
           onSubmit={(data) => handleChoreCreated(data as ChoreCreate)}
-          onClose={() => setShowAddModal(false)}
+          onClose={() => { setShowAddModal(false); setPrefillDate(null) }}
         />
       )}
 

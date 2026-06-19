@@ -9,6 +9,7 @@ function getApiBaseUrl() {
 export type RuleMember = {
   id: number
   display_name: string
+  is_current_member: boolean
 }
 
 export type RuleDetail = {

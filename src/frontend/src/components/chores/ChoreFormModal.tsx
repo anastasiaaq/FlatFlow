@@ -2,10 +2,16 @@ import { useState } from 'react'
 import type { SyntheticEvent } from 'react'
 import type { ChoreDetail, ChoreCreate, ChoreUpdate, TypeEnum } from '../../api/generated/flatFlowAPI.schemas'
 
+function memberName(member: { display_name: string; is_current_member: boolean } | null | undefined): string {
+  if (!member) return ''
+  return member.is_current_member ? member.display_name : `[former member] ${member.display_name}`
+}
+
 interface Props {
   mode: 'add' | 'edit'
   chore?: ChoreDetail
   members: Array<{ id: number; display_name: string }>
+  prefillDate?: string
   onSubmit: (data: ChoreCreate | ChoreUpdate) => Promise<void>
   onClose: () => void
   onDelete?: () => void
@@ -24,6 +30,7 @@ export default function ChoreFormModal({
   mode,
   chore,
   members,
+  prefillDate,
   onSubmit,
   onClose,
   onDelete,
@@ -33,9 +40,9 @@ export default function ChoreFormModal({
   const [type, setType] = useState<TypeEnum>(chore?.type ?? 'DUTY')
   const [title, setTitle] = useState(chore?.title ?? '')
   const [description, setDescription] = useState(chore?.description ?? '')
-  const [startDate, setStartDate] = useState(chore?.start_date ?? '')
+  const [startDate, setStartDate] = useState(chore?.start_date ?? prefillDate ?? '')
   const [endDate, setEndDate] = useState(
-    chore ? (chore.type === 'TASK' ? (chore.due_date ?? '') : (chore.end_date ?? '')) : '',
+    chore ? (chore.type === 'TASK' ? (chore.due_date ?? '') : (chore.end_date ?? '')) : (prefillDate ?? ''),
   )
   const [assigneeId, setAssigneeId] = useState(
     chore?.assignee?.id?.toString() ?? '',
@@ -153,7 +160,7 @@ export default function ChoreFormModal({
               </svg>
               <p className="text-[#0b0a0f] text-[13px]">
                 Completed by{' '}
-                <span className="font-semibold">{chore.completed_by.display_name}</span>
+                <span className="font-semibold">{memberName(chore.completed_by)}</span>
                 {chore.completed_at && (
                   <> on {formatDateShort(chore.completed_at)}</>
                 )}
