@@ -30,12 +30,15 @@ describe('auth routing', () => {
     expect(getRouteFromPath('/signup/welcome')).toBe('signup')
     expect(getRouteFromPath('/household/setup')).toBe('householdSetup')
     expect(getRouteFromPath('/household')).toBe('household')
+    expect(getRouteFromPath('/issues')).toBe('issues')
+    expect(getRouteFromPath('/issues/12')).toBe('issues')
     expect(getRouteFromPath('/householding')).toBe('login')
     expect(getRouteFromPath('/unknown')).toBe('login')
   })
 
   it('redirects unauthenticated users away from protected routes', () => {
     expect(getAuthRedirectRoute('household', unauthenticated)).toBe('login')
+    expect(getAuthRedirectRoute('issues', unauthenticated)).toBe('login')
     expect(getAuthRedirectRoute('householdSetup', null)).toBe('login')
   })
 
@@ -50,8 +53,12 @@ describe('auth routing', () => {
 
   it('keeps users on the route that matches their household status', () => {
     expect(getAuthRedirectRoute('household', userWithHousehold)).toBeNull()
+    expect(getAuthRedirectRoute('issues', userWithHousehold)).toBeNull()
     expect(getAuthRedirectRoute('householdSetup', userWithoutHousehold)).toBeNull()
     expect(getAuthRedirectRoute('household', userWithoutHousehold)).toBe(
+      'householdSetup',
+    )
+    expect(getAuthRedirectRoute('issues', userWithoutHousehold)).toBe(
       'householdSetup',
     )
     expect(getAuthRedirectRoute('householdSetup', userWithHousehold)).toBe(

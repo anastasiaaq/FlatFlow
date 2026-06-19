@@ -1,7 +1,9 @@
 const API_BASE = getApiBaseUrl()
 
 function getApiBaseUrl() {
-  return import.meta.env.VITE_API_BASE_URL ?? ''
+  return import.meta.env.DEV
+    ? ''
+    : (import.meta.env.VITE_API_BASE_URL ?? '')
 }
 
 export type RuleMember = {
