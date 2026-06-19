@@ -368,6 +368,10 @@ paths:
         schema:
           type: string
           default: all
+          enum:
+          - all
+          - open
+          - resolved
           minLength: 1
       tags:
       - issues
@@ -1187,6 +1191,7 @@ components:
         * `RESOLVED` - Resolved
     IssueUpdate:
       type: object
+      minProperties: 1
       properties:
         title:
           type: string
@@ -1247,6 +1252,7 @@ components:
           $ref: '#/components/schemas/ChoreStatus'
     PatchedIssueUpdate:
       type: object
+      minProperties: 1
       properties:
         title:
           type: string

@@ -63,7 +63,8 @@ export default function IssuesPage({
     Promise.all([listIssues(filter), getCurrentHousehold().catch(() => null)])
       .then(([issuesResponse, householdResponse]) => {
         if (!active) return
-        setIssues(issuesResponse.data)
+        setError(null)
+        setIssues(sortIssues(issuesResponse.data))
         setHouseholdName(householdResponse?.data.name ?? '')
       })
       .catch(() => {
@@ -97,8 +98,9 @@ export default function IssuesPage({
     try {
       await prepareMutation()
       const response = await createIssue(title.trim(), description.trim())
+      setError(null)
       if (issueMatchesFilter(response.data, filter)) {
-        setIssues((current) => [response.data, ...current])
+        setIssues((current) => sortIssues([response.data, ...current]))
       }
       setTitle('')
       setDescription('')
@@ -125,6 +127,7 @@ export default function IssuesPage({
         title: nextTitle.trim(),
         description: nextDescription.trim(),
       })
+      setError(null)
       setIssues((current) => replaceIssue(current, response.data))
       setPanel(null)
       return null
@@ -141,6 +144,7 @@ export default function IssuesPage({
     try {
       await prepareMutation()
       await deleteIssue(issue.id)
+      setError(null)
       setIssues((current) => current.filter((item) => item.id !== issue.id))
       setPanel(null)
     } catch {
@@ -158,6 +162,7 @@ export default function IssuesPage({
     try {
       await prepareMutation()
       const response = await toggleIssueStatus(issue.id)
+      setError(null)
       setIssues((current) => {
         const updated = replaceIssue(current, response.data)
         return sortIssues(updated.filter((item) => issueMatchesFilter(item, filter)))
