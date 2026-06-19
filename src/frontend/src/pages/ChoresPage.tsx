@@ -678,7 +678,7 @@ export default function ChoresPage({ currentUserId, currentUserName, onLogout, o
             setDeletingChore(editingChore)
             setEditingChore(null)
           }}
-          onComplete={() => handleMarkComplete(editingChore.id)}
+          onComplete={canMarkComplete(editingChore) ? () => handleMarkComplete(editingChore.id) : undefined}
           onReopen={() => handleReopenChore(editingChore.id)}
         />
       )}
