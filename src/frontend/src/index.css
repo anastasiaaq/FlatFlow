@@ -734,6 +734,7 @@ textarea:focus-visible {
   flex: 0 0 auto;
   width: auto;
   min-width: 130px;
+  font-size: 13px;
 }
 
 .issues-message {
