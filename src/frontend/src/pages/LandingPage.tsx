@@ -20,7 +20,6 @@ import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 
 type LandingPageProps = {
-  onLogin?: () => void
   onAuthenticated?: (auth: AuthState) => void
 }
 
@@ -75,7 +74,6 @@ function getLoginErrorMessage(data: unknown, status?: number) {
 }
 
 export default function LandingPage({
-  onLogin,
   onAuthenticated,
 }: LandingPageProps) {
   const [formMode, setFormMode] = useState<'signup' | 'login'>('signup')
