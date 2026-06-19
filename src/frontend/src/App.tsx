@@ -254,7 +254,6 @@ function App() {
 
   return (
     <LandingPage
-      onLogin={() => navigate('login')}
       onAuthenticated={handleAuthenticated}
     />
   )
