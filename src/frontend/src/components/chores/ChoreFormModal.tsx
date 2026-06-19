@@ -9,6 +9,15 @@ interface Props {
   onSubmit: (data: ChoreCreate | ChoreUpdate) => Promise<void>
   onClose: () => void
   onDelete?: () => void
+  onComplete?: () => Promise<void>
+  onReopen?: () => Promise<void>
+}
+
+function formatDateShort(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const [y, m, d] = iso.split('T')[0].split('-')
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  return `${months[parseInt(m) - 1]} ${parseInt(d)}, ${y}`
 }
 
 export default function ChoreFormModal({
@@ -18,6 +27,8 @@ export default function ChoreFormModal({
   onSubmit,
   onClose,
   onDelete,
+  onComplete,
+  onReopen,
 }: Props) {
   const [type, setType] = useState<TypeEnum>(chore?.type ?? 'DUTY')
   const [title, setTitle] = useState(chore?.title ?? '')
@@ -31,6 +42,10 @@ export default function ChoreFormModal({
   )
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const isCompleted = chore?.status === 'COMPLETED'
+  const canComplete = mode === 'edit' && !isCompleted && onComplete != null
+  const canReopen = mode === 'edit' && isCompleted && onReopen != null
 
   async function handleSubmit(e: SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -57,6 +72,32 @@ export default function ChoreFormModal({
     }
   }
 
+  async function handleComplete() {
+    if (!onComplete) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      await onComplete()
+    } catch {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function handleReopen() {
+    if (!onReopen) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      await onReopen()
+    } catch {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const inputClass =
     'w-full bg-[#fffef7] rounded-[7px] border border-[#d8d8bd] h-[43px] px-[12px] text-[#0b0a0f] text-[14px] placeholder-[#aaa] focus:outline-none focus:border-[#0b0a0f]'
   const choreTypeOptions: Array<{
@@ -72,7 +113,7 @@ export default function ChoreFormModal({
     {
       value: 'TASK',
       label: 'Task',
-      description: 'One-time chore with a due date.\nExample: buying detergent.',
+      description: 'One-time chore with an optional due date.\nExample: buying detergent.',
     },
   ]
 
@@ -102,6 +143,23 @@ export default function ChoreFormModal({
           <h2 className="text-[#0b0a0f] text-[32px] font-semibold mb-[24px] pr-[32px]">
             {mode === 'add' ? 'Add a new chore' : 'Edit the chore'}
           </h2>
+
+          {/* Completed attribution banner */}
+          {isCompleted && chore?.completed_by && (
+            <div className="mb-[20px] bg-[#c0e6b9] rounded-[7px] px-[14px] py-[10px] flex items-center gap-[8px]">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="6.25" stroke="#2a7a2a" strokeWidth="1.5" />
+                <path d="M4 7l2 2 4-4" stroke="#2a7a2a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <p className="text-[#0b0a0f] text-[13px]">
+                Completed by{' '}
+                <span className="font-semibold">{chore.completed_by.display_name}</span>
+                {chore.completed_at && (
+                  <> on {formatDateShort(chore.completed_at)}</>
+                )}
+              </p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-[20px]">
             {/* Type toggle */}
@@ -206,13 +264,14 @@ export default function ChoreFormModal({
                 </div>
                 <div>
                   <label className="text-[#0b0a0f] text-[16px] font-semibold block mb-[6px]">
-                    Due date
+                    End date *
                   </label>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     min={startDate || undefined}
+                    required
                     className={inputClass}
                   />
                 </div>
@@ -220,13 +279,12 @@ export default function ChoreFormModal({
             ) : (
               <div>
                 <label className="text-[#0b0a0f] text-[16px] font-semibold block mb-[6px]">
-                  Due date *
+                  Due date
                 </label>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  required
                   className={inputClass}
                 />
               </div>
@@ -235,18 +293,15 @@ export default function ChoreFormModal({
             {/* Assign to */}
             <div>
               <label className="text-[#0b0a0f] text-[16px] font-semibold block mb-[6px]">
-                Assign to *
+                Assign to
               </label>
               <div className="relative">
                 <select
                   value={assigneeId}
                   onChange={(e) => setAssigneeId(e.target.value)}
-                  required
                   className={`${inputClass} appearance-none pr-[36px]`}
                 >
-                  <option value="" disabled>
-                    Select from the list
-                  </option>
+                  <option value="">Unassigned</option>
                   {members.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.display_name}
@@ -271,6 +326,29 @@ export default function ChoreFormModal({
             </div>
 
             {error && <p className="text-[#cb322d] text-[14px]">{error}</p>}
+
+            {/* Mark complete / Reopen */}
+            {canComplete && (
+              <button
+                type="button"
+                onClick={handleComplete}
+                disabled={submitting}
+                className="w-full bg-[#c0e6b9] rounded-[7px] border border-[#0b0a0f]/20 h-[39px] text-[#0b0a0f] text-[14px] font-semibold hover:brightness-95 transition-[filter] disabled:opacity-50"
+              >
+                {chore?.type === 'TASK' ? 'Done' : 'Mark complete'}
+              </button>
+            )}
+
+            {canReopen && (
+              <button
+                type="button"
+                onClick={handleReopen}
+                disabled={submitting}
+                className="w-full bg-[#fffef7] rounded-[7px] border border-[#d8d8bd] h-[39px] text-[#393939] text-[14px] font-medium hover:bg-[#fdd329] hover:border-[#0b0a0f] hover:text-[#0b0a0f] transition-colors disabled:opacity-50"
+              >
+                Reopen chore
+              </button>
+            )}
 
             {/* Actions row */}
             <div className="flex items-center justify-between mt-[4px]">
