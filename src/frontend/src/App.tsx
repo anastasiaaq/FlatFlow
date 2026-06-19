@@ -21,6 +21,7 @@ import ProfileModal from './components/ProfileModal'
 import ChoresPage from './pages/ChoresPage'
 import HouseholdPage from './pages/HouseholdPage'
 import HouseholdSetupPage from './pages/HouseholdSetupPage'
+import LandingPage from './pages/LandingPage'
 import IssuesPage from './pages/IssuesPage'
 import LoginPage from './pages/LoginPage'
 import RulesPage from './pages/RulesPage'
@@ -120,7 +121,7 @@ function App() {
         user: null,
       })
     } finally {
-      navigate('login', true)
+      navigate('landing', true)
     }
   }
 
@@ -242,10 +243,19 @@ function App() {
     )
   }
 
+  if (activeRoute === 'login') {
+    return (
+      <LoginPage
+        onAuthenticated={handleAuthenticated}
+        onCreateAccount={() => navigate('signup')}
+      />
+    )
+  }
+
   return (
-    <LoginPage
+    <LandingPage
+      onLogin={() => navigate('login')}
       onAuthenticated={handleAuthenticated}
-      onCreateAccount={() => navigate('signup')}
     />
   )
 }

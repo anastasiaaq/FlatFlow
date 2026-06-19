@@ -26,14 +26,16 @@ const userWithHousehold: AuthState = {
 
 describe('auth routing', () => {
   it('maps browser paths to app routes', () => {
+    expect(getRouteFromPath('/')).toBe('landing')
+    expect(getRouteFromPath('/login')).toBe('login')
     expect(getRouteFromPath('/signup')).toBe('signup')
     expect(getRouteFromPath('/signup/welcome')).toBe('signup')
     expect(getRouteFromPath('/household/setup')).toBe('householdSetup')
     expect(getRouteFromPath('/household')).toBe('household')
     expect(getRouteFromPath('/issues')).toBe('issues')
     expect(getRouteFromPath('/issues/12')).toBe('issues')
-    expect(getRouteFromPath('/householding')).toBe('login')
-    expect(getRouteFromPath('/unknown')).toBe('login')
+    expect(getRouteFromPath('/householding')).toBe('landing')
+    expect(getRouteFromPath('/unknown')).toBe('landing')
   })
 
   it('redirects unauthenticated users away from protected routes', () => {
@@ -45,6 +47,7 @@ describe('auth routing', () => {
   it('redirects authenticated users based on household membership', () => {
     expect(getPostLoginRoute(userWithHousehold)).toBe('household')
     expect(getPostLoginRoute(userWithoutHousehold)).toBe('householdSetup')
+    expect(getAuthRedirectRoute('landing', userWithHousehold)).toBe('household')
     expect(getAuthRedirectRoute('login', userWithHousehold)).toBe('household')
     expect(getAuthRedirectRoute('login', userWithoutHousehold)).toBe(
       'householdSetup',

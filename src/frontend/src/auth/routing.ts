@@ -1,8 +1,17 @@
 import type { AuthState } from '../api/generated/flatFlowAPI.schemas'
 
-export type AppRoute = 'login' | 'signup' | 'household' | 'householdSetup' | 'chores' | 'rules' | 'issues'
+export type AppRoute =
+  | 'landing'
+  | 'login'
+  | 'signup'
+  | 'household'
+  | 'householdSetup'
+  | 'chores'
+  | 'rules'
+  | 'issues'
 
 export const routePaths: Record<AppRoute, string> = {
+  landing: '/',
   login: '/login',
   signup: '/signup',
   household: '/household',
@@ -13,13 +22,15 @@ export const routePaths: Record<AppRoute, string> = {
 }
 
 export function getRouteFromPath(pathname: string): AppRoute {
+  if (pathname === '/') return 'landing'
+  if (matchesRoutePath(pathname, routePaths.login)) return 'login'
   if (matchesRoutePath(pathname, routePaths.signup)) return 'signup'
   if (matchesRoutePath(pathname, routePaths.householdSetup)) return 'householdSetup'
   if (matchesRoutePath(pathname, routePaths.chores)) return 'chores'
   if (matchesRoutePath(pathname, routePaths.rules)) return 'rules'
   if (matchesRoutePath(pathname, routePaths.issues)) return 'issues'
   if (matchesRoutePath(pathname, routePaths.household)) return 'household'
-  return 'login'
+  return 'landing'
 }
 
 function matchesRoutePath(pathname: string, routePath: string) {
@@ -44,7 +55,7 @@ export function getAuthRedirectRoute(
     return isProtectedRoute(route) ? 'login' : null
   }
 
-  if (route === 'login' || route === 'signup') {
+  if (route === 'landing' || route === 'login' || route === 'signup') {
     return getPostLoginRoute(auth)
   }
 
