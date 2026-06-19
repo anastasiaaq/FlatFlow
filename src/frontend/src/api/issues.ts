@@ -1,7 +1,7 @@
 import { customFetch } from './fetcher'
+import type { IssueFilter, IssueStatus } from '../issues'
 
-export type IssueStatus = 'OPEN' | 'RESOLVED'
-export type IssueFilter = 'all' | 'open' | 'resolved'
+export type { IssueFilter, IssueStatus } from '../issues'
 
 export type IssueAuthor = {
   id: number

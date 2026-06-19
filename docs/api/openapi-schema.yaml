@@ -6,7 +6,7 @@ info:
 paths:
   /api/chores/:
     get:
-      operationId: api_chores_list
+      operationId: chores_list
       description: Return chores for the current household, with optional assignee
         and status filters. The default sort follows the chore-list priority order.
       summary: List chores
@@ -48,7 +48,7 @@ paths:
         '404':
           description: No response body
     post:
-      operationId: api_chores_create
+      operationId: chores_create
       description: Create a Task or Duty in the current household.
       summary: Create chore
       tags:
@@ -83,7 +83,7 @@ paths:
           description: No response body
   /api/chores/{id}/:
     get:
-      operationId: api_chores_retrieve
+      operationId: chores_retrieve
       description: Return one chore from the current household.
       summary: Get chore
       parameters:
@@ -110,7 +110,7 @@ paths:
         '404':
           description: No response body
     put:
-      operationId: api_chores_update
+      operationId: chores_update
       description: Edit a chore. Chore type is immutable; status may be changed to
         reopen or complete a chore.
       summary: Update chore
@@ -151,7 +151,7 @@ paths:
         '404':
           description: No response body
     patch:
-      operationId: api_chores_partial_update
+      operationId: chores_partial_update
       description: Edit one or more chore fields. Chore type is immutable; status
         may be changed to reopen or complete a chore.
       summary: Partially update chore
@@ -192,7 +192,7 @@ paths:
         '404':
           description: No response body
     delete:
-      operationId: api_chores_destroy
+      operationId: chores_destroy
       description: Delete a chore from the current household.
       summary: Delete chore
       parameters:
@@ -216,7 +216,7 @@ paths:
           description: No response body
   /api/chores/{id}/complete/:
     post:
-      operationId: api_chores_complete_create
+      operationId: chores_complete_create
       description: Mark a chore completed as the current user. Tasks can be completed
         at any time; Duties can be completed from their start date onward.
       summary: Mark chore completed
@@ -247,7 +247,7 @@ paths:
           description: No response body
   /api/households/:
     post:
-      operationId: api_households_create
+      operationId: households_create
       description: Create a new household and join it as the first member.
       summary: Create household
       tags:
@@ -280,7 +280,7 @@ paths:
           description: No response body
   /api/households/current/:
     get:
-      operationId: api_households_current_retrieve
+      operationId: households_current_retrieve
       description: Return the household the current user belongs to, with its members.
       summary: Current household
       tags:
@@ -301,7 +301,7 @@ paths:
           description: No response body
   /api/households/join/:
     post:
-      operationId: api_households_join_create
+      operationId: households_join_create
       description: Join an existing household using its invite code.
       summary: Join household
       tags:
@@ -336,7 +336,7 @@ paths:
           description: No response body
   /api/households/leave/:
     post:
-      operationId: api_households_leave_create
+      operationId: households_leave_create
       description: Leave the current household. If the user is the last member, the
         household and all its data are deleted.
       summary: Leave household
@@ -356,9 +356,241 @@ paths:
           description: No response body
         '404':
           description: No response body
+  /api/issues/:
+    get:
+      operationId: issues_list
+      description: Return issues for the current household. Optionally filter by status.
+        Open issues are listed first, then resolved; newest first within each group.
+      summary: List issues
+      parameters:
+      - in: query
+        name: status
+        schema:
+          type: string
+          default: all
+          minLength: 1
+      tags:
+      - issues
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IssueDetail'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+    post:
+      operationId: issues_create
+      description: Report a new issue in the current household.
+      summary: Create issue
+      tags:
+      - issues
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/IssueCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/IssueCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+  /api/issues/{id}/:
+    get:
+      operationId: issues_retrieve
+      description: Return one issue from the current household.
+      summary: Get issue
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this issue.
+        required: true
+      tags:
+      - issues
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
+    put:
+      operationId: issues_update
+      description: Edit an issue. Only the author may edit their own issue.
+      summary: Update issue
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this issue.
+        required: true
+      tags:
+      - issues
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/IssueUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/IssueUpdate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '403':
+          description: No response body
+        '404':
+          description: No response body
+    patch:
+      operationId: issues_partial_update
+      description: Edit one or more issue fields. Only the author may edit their own
+        issue.
+      summary: Partially update issue
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this issue.
+        required: true
+      tags:
+      - issues
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedIssueUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedIssueUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedIssueUpdate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+          description: ''
+        '400':
+          description: No response body
+        '401':
+          description: No response body
+        '403':
+          description: No response body
+        '404':
+          description: No response body
+    delete:
+      operationId: issues_destroy
+      description: Delete an issue. Only the author may delete their own issue.
+      summary: Delete issue
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this issue.
+        required: true
+      tags:
+      - issues
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+        '401':
+          description: No response body
+        '403':
+          description: No response body
+        '404':
+          description: No response body
+  /api/issues/{id}/toggle-status/:
+    post:
+      operationId: issues_toggle_status_create
+      description: Toggle an issue between open and resolved. Any household member
+        may change the status (a resolved issue can be reopened).
+      summary: Toggle issue status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this issue.
+        required: true
+      tags:
+      - issues
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssueDetail'
+          description: ''
+        '401':
+          description: No response body
+        '404':
+          description: No response body
   /api/rules/:
     get:
-      operationId: api_rules_list
+      operationId: rules_list
       description: List all house rules of the current household in chronological
         order.
       summary: List house rules
@@ -381,7 +613,7 @@ paths:
         '404':
           description: No response body
     post:
-      operationId: api_rules_create
+      operationId: rules_create
       description: Add a new house rule to the current household.
       summary: Add house rule
       tags:
@@ -416,7 +648,7 @@ paths:
           description: No response body
   /api/rules/{id}/:
     put:
-      operationId: api_rules_update
+      operationId: rules_update
       description: Edit any house rule of the current household. Records the editor
         as the last-modified-by member.
       summary: Edit house rule
@@ -458,7 +690,7 @@ paths:
         '404':
           description: No response body
     delete:
-      operationId: api_rules_destroy
+      operationId: rules_destroy
       description: Delete any house rule of the current household.
       summary: Delete house rule
       parameters:
@@ -482,7 +714,7 @@ paths:
           description: No response body
   /api/users/:
     post:
-      operationId: api_users_create
+      operationId: users_create
       description: Create a new user account and start an authenticated session.
       summary: Register user
       tags:
@@ -512,7 +744,7 @@ paths:
           description: ''
   /api/users/csrf/:
     get:
-      operationId: api_users_csrf_retrieve
+      operationId: users_csrf_retrieve
       description: Issue a csrftoken cookie for browser clients before unsafe requests.
       summary: Set CSRF cookie
       tags:
@@ -526,7 +758,7 @@ paths:
           description: No response body
   /api/users/login/:
     post:
-      operationId: api_users_login_create
+      operationId: users_login_create
       description: Authenticate a user and start a persisted session.
       summary: Login user
       tags:
@@ -558,7 +790,7 @@ paths:
           description: No response body
   /api/users/logout/:
     post:
-      operationId: api_users_logout_create
+      operationId: users_logout_create
       description: End the current session. This is idempotent for anonymous or expired
         sessions.
       summary: Logout user
@@ -577,7 +809,7 @@ paths:
           description: ''
   /api/users/me/:
     get:
-      operationId: api_users_me_retrieve
+      operationId: users_me_retrieve
       description: Return the current user's authentication state.
       summary: Current auth state
       tags:
@@ -595,7 +827,7 @@ paths:
           description: ''
   /api/users/profile/:
     get:
-      operationId: api_users_profile_retrieve
+      operationId: users_profile_retrieve
       description: Return the authenticated user's profile.
       summary: Current user profile
       tags:
@@ -611,7 +843,7 @@ paths:
                 $ref: '#/components/schemas/UserProfile'
           description: ''
     put:
-      operationId: api_users_profile_update
+      operationId: users_profile_update
       description: Update the authenticated user's profile.
       summary: Update user profile
       tags:
@@ -883,6 +1115,87 @@ components:
           minLength: 1
       required:
       - invite_code
+    IssueAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        display_name:
+          type: string
+          readOnly: true
+      required:
+      - display_name
+      - id
+    IssueCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 80
+          minLength: 1
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 1
+      required:
+      - description
+      - title
+    IssueDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/IssueDetailStatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/IssueAuthor'
+          readOnly: true
+      required:
+      - created_at
+      - created_by
+      - description
+      - id
+      - status
+      - title
+      - updated_at
+    IssueDetailStatusEnum:
+      enum:
+      - OPEN
+      - RESOLVED
+      type: string
+      description: |-
+        * `OPEN` - Open
+        * `RESOLVED` - Resolved
+    IssueUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 80
+          minLength: 1
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 1
     LeaveResult:
       type: object
       properties:
@@ -932,6 +1245,17 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/ChoreStatus'
+    PatchedIssueUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 80
+          minLength: 1
+        description:
+          type: string
+          maxLength: 1000
+          minLength: 1
     RuleDetail:
       type: object
       properties:

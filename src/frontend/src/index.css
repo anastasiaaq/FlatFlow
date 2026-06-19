@@ -717,6 +717,25 @@ textarea:focus-visible {
   font-size: 14px;
 }
 
+.issue-card--empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.issue-card--empty p {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.issue-card--empty .button {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 130px;
+}
+
 .issues-message {
   margin-top: 32px;
 }

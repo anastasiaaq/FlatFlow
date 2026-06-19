@@ -11,10 +11,19 @@ import {
 } from '../api/issues'
 import { getCurrentHousehold } from '../api'
 import Navbar from '../components/Navbar'
+import {
+  getEmptyStateMessage,
+  getIssueAuthorName,
+  issueMatchesFilter,
+  ISSUE_DESCRIPTION_MAX_LENGTH,
+  ISSUE_TITLE_MAX_LENGTH,
+  replaceIssue,
+  sortIssues,
+  validateIssue,
+} from '../issues'
 import type { Page } from '../types/navigation'
 
-const TITLE_MAX_LENGTH = 80
-const DESCRIPTION_MAX_LENGTH = 1000
+const NEW_ISSUE_TITLE_ID = 'new-issue-title'
 
 type PanelState =
   | { type: 'edit'; issue: IssueDetail }
@@ -203,7 +212,16 @@ export default function IssuesPage({
             <section className="issues-list" aria-label="Household issues">
               {issues.length === 0 && (
                 <div className="issue-card issue-card--empty">
-                  {getEmptyStateMessage(filter)}
+                  <p>{getEmptyStateMessage(filter)}</p>
+                  {filter === 'all' && (
+                    <button
+                      type="button"
+                      className="button button--primary"
+                      onClick={() => document.getElementById(NEW_ISSUE_TITLE_ID)?.focus()}
+                    >
+                      + Report issue
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -212,6 +230,11 @@ export default function IssuesPage({
                   key={issue.id}
                   issue={issue}
                   canManage={issue.created_by.id === currentUserId}
+                  authorName={getIssueAuthorName(
+                    issue,
+                    currentUserId,
+                    currentUserName,
+                  )}
                   onEdit={() => setPanel({ type: 'edit', issue })}
                   onDelete={() => setPanel({ type: 'delete', issue })}
                   onToggle={() => handleToggle(issue)}
@@ -274,6 +297,7 @@ export default function IssuesPage({
 function IssueCard({
   issue,
   canManage,
+  authorName,
   onEdit,
   onDelete,
   onToggle,
@@ -281,6 +305,7 @@ function IssueCard({
 }: {
   issue: IssueDetail
   canManage: boolean
+  authorName: string
   onEdit: () => void
   onDelete: () => void
   onToggle: () => void
@@ -303,7 +328,7 @@ function IssueCard({
       <div className="issue-card__footer">
         <span>
           Created on {formatIssueDate(issue.created_at)} by{' '}
-          <strong>{issue.created_by.display_name}</strong>
+          <strong>{authorName}</strong>
         </span>
         {canManage && (
           <div className="issue-card__actions">
@@ -343,16 +368,17 @@ function IssueForm({
     <form className="issue-form" onSubmit={onSubmit}>
       <h2>Add a new issue</h2>
       <IssueField
+        id={NEW_ISSUE_TITLE_ID}
         label="Title *"
         value={title}
-        maxLength={TITLE_MAX_LENGTH}
+        maxLength={ISSUE_TITLE_MAX_LENGTH}
         onChange={onTitleChange}
       />
       <IssueField
         multiline
         label="Description *"
         value={description}
-        maxLength={DESCRIPTION_MAX_LENGTH}
+        maxLength={ISSUE_DESCRIPTION_MAX_LENGTH}
         onChange={onDescriptionChange}
       />
       {error && <p className="issue-form__error">{error}</p>}
@@ -413,7 +439,7 @@ function EditIssuePanel({
       <IssueField
         label="Title *"
         value={title}
-        maxLength={TITLE_MAX_LENGTH}
+        maxLength={ISSUE_TITLE_MAX_LENGTH}
         onChange={(value) => {
           setTitle(value)
           setError(null)
@@ -423,7 +449,7 @@ function EditIssuePanel({
         multiline
         label="Description *"
         value={description}
-        maxLength={DESCRIPTION_MAX_LENGTH}
+        maxLength={ISSUE_DESCRIPTION_MAX_LENGTH}
         onChange={(value) => {
           setDescription(value)
           setError(null)
@@ -476,12 +502,14 @@ function DeleteIssuePanel({
 }
 
 function IssueField({
+  id,
   label,
   value,
   maxLength,
   multiline = false,
   onChange,
 }: {
+  id?: string
   label: string
   value: string
   maxLength: number
@@ -496,6 +524,7 @@ function IssueField({
       </span>
       {multiline ? (
         <textarea
+          id={id}
           value={value}
           maxLength={maxLength}
           placeholder="Enter your text here..."
@@ -503,6 +532,7 @@ function IssueField({
         />
       ) : (
         <input
+          id={id}
           value={value}
           maxLength={maxLength}
           placeholder="Enter your text here..."
@@ -511,41 +541,6 @@ function IssueField({
       )}
     </label>
   )
-}
-
-function validateIssue(title: string, description: string) {
-  const cleanTitle = title.trim()
-  const cleanDescription = description.trim()
-
-  if (!cleanTitle) return 'Title is required.'
-  if (cleanTitle.length > TITLE_MAX_LENGTH) return 'Title must be 80 characters or fewer.'
-  if (!cleanDescription) return 'Description is required.'
-  if (cleanDescription.length > DESCRIPTION_MAX_LENGTH) {
-    return 'Description must be 1000 characters or fewer.'
-  }
-  return null
-}
-
-function replaceIssue(issues: IssueDetail[], updated: IssueDetail) {
-  return issues.map((issue) => (issue.id === updated.id ? updated : issue))
-}
-
-function sortIssues(issues: IssueDetail[]) {
-  return [...issues].sort((left, right) => {
-    if (left.status !== right.status) return left.status === 'OPEN' ? -1 : 1
-    return new Date(right.created_at).getTime() - new Date(left.created_at).getTime()
-  })
-}
-
-function issueMatchesFilter(issue: IssueDetail, filter: IssueFilter) {
-  if (filter === 'all') return true
-  return issue.status === filter.toUpperCase()
-}
-
-function getEmptyStateMessage(filter: IssueFilter) {
-  if (filter === 'open') return 'No open issues.'
-  if (filter === 'resolved') return 'No resolved issues.'
-  return 'No issues yet. Add the first one for your household.'
 }
 
 function formatIssueDate(iso: string) {
