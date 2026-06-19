@@ -785,7 +785,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 
 ## Epic 4 — Issue Tracker
 
-> **Note:** the Issues API and frontend flows are implemented. The cases below are ready for execution.
+> **Note:** the Issues API is not yet implemented (the `issues` app currently has only a model). All cases below are `Blocked` until the API is merged.
 
 ### TC-ISSUE-01 — Create an issue with valid data
 
@@ -795,8 +795,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is a household member |
 | Steps | 1. New issue. 2. title = `Leaking tap`, description = `Kitchen tap drips`. 3. Save. |
-| Expected result | The issue is created with status "open", the author's name and creation date, and appears in the list. |
-| Status | Not run |
+| Expected result | **API (now):** the issue is created with status "open", the author's name and the creation date. **UI (deferred):** it appears in the list. |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -809,7 +809,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Preconditions | User is a household member |
 | Steps | 1. Save with empty title. 2. Save with empty description. |
 | Expected result | Both rejected with an error (title 1–80, description 1–1000 required) |
-| Status | Not run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -821,8 +821,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | Household has open and resolved issues |
 | Steps | 1. Open the Issues page. |
-| Expected result | Issues are shown with title, author, status and creation date, sorted Open first then Resolved, newest first within each group. |
-| Status | Not run |
+| Expected result | **API (now):** issues are returned with title, author, status and creation date, sorted Open first then Resolved, newest first within each group. **UI (deferred):** the list is shown. |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -834,8 +834,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | Household has no issues |
 | Steps | 1. Open the Issues page. |
-| Expected result | The empty list shows "No issues reported — your household is running smoothly!" with a "+ Report issue" CTA. |
-| Status | Not run |
+| Expected result | **API (now):** the issues list is empty. **UI (deferred):** shows "No issues reported — your household is running smoothly!" with a "+ Report issue" CTA. |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -848,7 +848,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Preconditions | An open issue exists |
 | Steps | 1. Change status to "resolved". 2. Change it back to "open". |
 | Expected result | Any member can toggle; the updated status is visible to all members immediately |
-| Status | Not run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -860,8 +860,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Positive |
 | Preconditions | User is the author of an issue |
 | Steps | 1. Edit the issue and save. 2. Delete it and confirm. |
-| Expected result | The author can edit and delete the issue; delete shows a confirmation dialog. |
-| Status | Not run |
+| Expected result | **API (now):** the author can edit (200) and delete the issue. **UI (deferred):** delete shows a confirmation dialog. |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -873,8 +873,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | An issue authored by another member |
 | Steps | 1. As a different member, open that issue. |
-| Expected result | A non-author edit/delete request is rejected (403), and Edit/Delete buttons are not visible to non-authors. |
-| Status | Not run |
+| Expected result | **API (now):** a non-author edit/delete request is rejected (403). **UI (deferred):** the Edit/Delete buttons are not visible at all to non-authors (not merely disabled). |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -887,7 +887,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Preconditions | User authored an issue now marked "resolved" |
 | Steps | 1. Edit the resolved issue. 2. Delete it. |
 | Expected result | Author can still edit and delete a resolved issue |
-| Status | Not run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -900,7 +900,7 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Preconditions | Household has open and resolved issues |
 | Steps | 1. Set the status filter to "open", then "resolved", then "all". |
 | Expected result | The list shows only issues matching the selected status |
-| Status | Not run |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
@@ -912,8 +912,8 @@ Acceptance criteria source: [`user-stories.md`](../user-stories.md).
 | Type | Edge |
 | Preconditions | No issue matches the selected status |
 | Steps | 1. Select a status with no matching issues. |
-| Expected result | The empty filtered result shows "No issues match this filter — try a different status". |
-| Status | Not run |
+| Expected result | **API (now):** the filtered result is empty. **UI (deferred):** shows "No issues match this filter — try a different status". |
+| Status | Blocked |
 | Actual result (if Fail) | |
 | Severity (if Fail) | |
 
