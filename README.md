@@ -109,15 +109,6 @@ To stop everything: `docker compose --profile dev down` (add `-v` to also drop t
 
 Production runs on a **Hetzner Cloud VPS**. A GitHub Actions workflow ([`.github/workflows/deploy.yaml`](.github/workflows/deploy.yaml)) deploys on every push to `main`: it SSHes into the server, pulls the latest `main`, rebuilds the backend and database containers with Docker Compose, runs migrations and re-exports the production React build (served as static files, with `/api` reverse-proxied to the backend). It expects the `SERVER_HOST`, `SERVER_USER` and `SERVER_SSH_KEY` repository secrets.
 
-## Testing
-
-Frontend unit tests (auth validation, routing, rules helpers):
-
-```bash
-cd src/frontend
-pnpm test
-```
-
 ## Documentation
 
 - [User Stories](docs/user-stories.md) — epics and acceptance criteria
