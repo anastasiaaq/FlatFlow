@@ -7,7 +7,7 @@ than wiring.
 
 | Layer | Choice | Why (short) | Main alternative considered |
 | --- | --- | --- | --- |
-| Frontend | **React + TypeScript** (Vite) | Familiar; largest component ecosystem (calendar, forms, modals); types catch field mix-ups across 6 entities | Vue, Svelte — simpler syntax, smaller ecosystem |
+| Frontend | **React + TypeScript** (Vite) | Familiar to the team; mature ecosystem, large community and tooling; strong TypeScript support catches field mix-ups across 6 entities | Vue, Svelte — simpler, but the team already knew React |
 | Backend | **Django REST Framework** | Session auth + CSRF + ORM + migrations + admin out of the box; fewer places to make a security mistake | FastAPI — modern, but auth/ORM must be assembled from parts |
 | Database | **PostgreSQL** | Domain is strictly relational; strong DB-level constraints (e.g. conditional `CHECK` for Task/Duty) | MySQL — weaker JSON/constraints; MongoDB — wrong fit for relational data |
 | Auth | **Session + HTTP-only cookies** | Not readable by JS, so the session can't be stolen via XSS; trivial logout; CSRF built into Django | JWT in localStorage — XSS-exposed, needs blacklist for logout |
@@ -26,6 +26,7 @@ than wiring.
 
 ## Trade-offs we accept
 
+- **No component library** — all UI (calendar, forms, modals) is built from scratch with Tailwind. More code to own, but full control and a minimal runtime dependency tree (only React + React DOM).
 - **DRF is synchronous** — fine for this MVP (no realtime/streaming).
 - **Sessions are server-side** — not horizontally scalable without a shared
   session store, irrelevant for a single-instance deployment.
