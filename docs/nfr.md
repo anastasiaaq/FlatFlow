@@ -23,7 +23,7 @@
 ### Deployment
 
 - Docker & Docker Compose
-- Cloud deployment on AWS EC2
+- Cloud deployment on Hetzner Cloud VPS
 
 ### Supported Browsers
 
@@ -110,7 +110,7 @@
 
 User Stories are sorted into four categories per the project's prioritization method: features that are essential (Critical), valuable but not minimum (Important), nice-to-have (Desirable), and consciously rejected (Deferred).
 
-### Критично (Critical — MVP must-ship)
+### Critical — MVP must-ship
 
 These features are essential for the MVP release:
 
@@ -121,7 +121,7 @@ These features are essential for the MVP release:
 - Issues: US-4.1 (create), US-4.2 (view list), US-4.3 (change status), US-4.4 (edit/delete own)
 - House rules: US-5.1 (add), US-5.2 (view), US-5.3 (edit/delete)
 
-### Важливо (Important — ship if Critical is on track)
+### Important — ship if Critical is on track
 
 Significant value, but not part of the absolute minimum. Implemented once Critical is confirmed achievable within the timeline.
 
@@ -129,13 +129,13 @@ Significant value, but not part of the absolute minimum. Implemented once Critic
 - US-1.5 (edit display name)
 - US-3.8 (filter chores by assignee and status)
 
-### Бажано (Desirable — only if time remains)
+### Desirable — only if time remains
 
 Nice additions with minor impact on core functionality.
 
 - US-4.5 (filter issues by status)
 
-### Відкладено (Deferred — consciously rejected for this practice)
+### Deferred — consciously rejected for this practice
 
 Requirements that were considered and intentionally excluded from the 6-week scope, with reasoning recorded to prevent scope creep:
 
