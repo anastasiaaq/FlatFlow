@@ -194,6 +194,7 @@ textarea:focus-visible {
 .page-heading h1 {
   margin: 0;
   font-size: 32px;
+  font-weight: 600;
   line-height: 1.2;
 }
 
@@ -248,10 +249,12 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
   border: 4px solid #0b0a0f;
   border-radius: 50%;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 600;
+  line-height: 1;
 }
 
 .rule-card__content h2 {
@@ -260,10 +263,17 @@ textarea:focus-visible {
   font-weight: 600;
 }
 
-.rule-card__content p,
+.rule-card__content p {
+  margin: 0;
+  font-size: 14px;
+}
+
 .rule-card__meta p {
   margin: 0;
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rule-card__meta {
@@ -309,7 +319,7 @@ textarea:focus-visible {
 
 .rule-form__header h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .rule-form__header span {
@@ -327,6 +337,11 @@ textarea:focus-visible {
   background: #fffef7;
   color: #0b0a0f;
   font-size: 12px;
+  font-weight: 400;
+}
+
+.rule-form textarea::placeholder {
+  font-weight: 400;
 }
 
 .rule-form__error,
@@ -773,12 +788,20 @@ textarea:focus-visible {
 }
 
 .issue-status {
+  padding: 5px 14px;
   border: 0;
-  background: transparent;
+  border-radius: 7px;
+  background: #fdd329;
   color: #0b0a0f;
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.issue-status:disabled {
+  cursor: default;
+  opacity: 0.55;
 }
 
 .issue-card__actions {
