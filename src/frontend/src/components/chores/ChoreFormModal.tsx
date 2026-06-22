@@ -99,7 +99,7 @@ export default function ChoreFormModal({
   }
 
   const inputClass =
-    'w-full bg-[#fffef7] rounded-[7px] border border-[#d8d8bd] h-[43px] px-[12px] text-[#0b0a0f] text-[14px] placeholder-[#aaa] focus:outline-none focus:border-[#0b0a0f]'
+    'w-full bg-[#fffef7] rounded-[7px] border border-[#d8d8bd] h-[43px] px-[12px] text-[#0b0a0f] text-[14px] font-normal placeholder-[#aaa] placeholder:font-normal focus:outline-none focus:border-[#0b0a0f]'
   const choreTypeOptions: Array<{
     value: TypeEnum
     label: string
@@ -243,7 +243,7 @@ export default function ChoreFormModal({
                 placeholder="Enter description..."
                 maxLength={500}
                 rows={4}
-                className="w-full bg-[#fffef7] rounded-[7px] border border-[#d8d8bd] px-[12px] py-[10px] text-[#0b0a0f] text-[14px] placeholder-[#aaa] focus:outline-none focus:border-[#0b0a0f] resize-none"
+                className="w-full bg-[#fffef7] rounded-[7px] border border-[#d8d8bd] px-[12px] py-[10px] text-[#0b0a0f] text-[14px] font-normal placeholder-[#aaa] placeholder:font-normal focus:outline-none focus:border-[#0b0a0f] resize-none"
               />
             </div>
 
