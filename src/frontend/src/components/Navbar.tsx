@@ -5,7 +5,7 @@ type NavbarProps = {
   householdName?: string
   userName?: string
   activePage?: Page
-  onLogout?: () => void
+  onLogout?: () => void | Promise<void>
   onProfileOpen?: () => void
   onNavigate?: (page: Page) => void
 }
@@ -19,6 +19,19 @@ export default function Navbar({
   onNavigate,
 }: NavbarProps) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  async function handleLogoutConfirm() {
+    if (isLoggingOut) return
+
+    setIsLoggingOut(true)
+    try {
+      await onLogout?.()
+    } finally {
+      setIsLoggingOut(false)
+      setShowLogoutConfirm(false)
+    }
+  }
 
   const navItems = [
     { key: 'household', label: 'Household', disabled: false },
@@ -82,10 +95,8 @@ export default function Navbar({
     {showLogoutConfirm && (
       <LogoutConfirmModal
         onCancel={() => setShowLogoutConfirm(false)}
-        onConfirm={() => {
-          setShowLogoutConfirm(false)
-          onLogout?.()
-        }}
+        onConfirm={handleLogoutConfirm}
+        saving={isLoggingOut}
       />
     )}
     </>
@@ -95,9 +106,11 @@ export default function Navbar({
 function LogoutConfirmModal({
   onCancel,
   onConfirm,
+  saving,
 }: {
   onCancel: () => void
-  onConfirm: () => void
+  onConfirm: () => void | Promise<void>
+  saving: boolean
 }) {
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" role="dialog" aria-modal="true">
@@ -111,17 +124,19 @@ function LogoutConfirmModal({
         <div className="flex justify-end gap-[12px]">
           <button
             type="button"
+            disabled={saving}
             onClick={onCancel}
-            className="rounded-[7px] border border-[#d8d8bd] px-[20px] h-[38px] text-[#0b0a0f] text-[16px] font-medium hover:bg-[#efefdf] transition-colors"
+            className="rounded-[7px] border border-[#d8d8bd] px-[20px] h-[38px] text-[#0b0a0f] text-[16px] font-medium hover:bg-[#efefdf] transition-colors disabled:opacity-50"
           >
             CANCEL
           </button>
           <button
             type="button"
+            disabled={saving}
             onClick={onConfirm}
-            className="bg-[#0b0a0f] rounded-[7px] px-[20px] h-[38px] text-[#fffef7] text-[16px] font-medium hover:opacity-80 transition-opacity"
+            className="bg-[#0b0a0f] rounded-[7px] px-[20px] h-[38px] text-[#fffef7] text-[16px] font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
           >
-            LOG OUT
+            {saving ? 'LOGGING OUT...' : 'LOG OUT'}
           </button>
         </div>
       </div>

@@ -20,14 +20,15 @@ button {
 }
 
 button:focus-visible,
-a:focus-visible,
-textarea:focus-visible {
+a:focus-visible {
   outline: 3px solid #0b0a0f;
   outline-offset: 3px;
 }
 
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible {
   outline: none;
+  box-shadow: 0 0 0 2px #fdd329;
 }
 
 .page-shell {

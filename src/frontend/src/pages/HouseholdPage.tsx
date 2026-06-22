@@ -61,7 +61,6 @@ export default function HouseholdPage({
   }
 
   async function doLeave() {
-    setLeaveConfirm(false)
     setLeaving(true)
     try {
       const res = await apiHouseholdsLeaveCreate()
@@ -75,6 +74,7 @@ export default function HouseholdPage({
       setError('Failed to leave household.')
     } finally {
       setLeaving(false)
+      setLeaveConfirm(false)
     }
   }
 
@@ -262,7 +262,11 @@ function LeaveConfirmModal({
   onConfirm: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+    <div
+      className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="bg-[#fbf4f1] rounded-[11px] border border-[#d8bdbd] w-[420px] p-[28px]">
         <div className="flex items-start gap-[14px] mb-[20px]">
           <WarningIcon />
