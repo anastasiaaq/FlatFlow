@@ -247,7 +247,9 @@ function RuleCard({
 }) {
   return (
     <article className="rule-card">
-      <div className="rule-card__number">{index}</div>
+      <div className="rule-card__number">
+        <span>{index}</span>
+      </div>
       <div className="rule-card__content">
         <h2>{rule.text}</h2>
         <p>

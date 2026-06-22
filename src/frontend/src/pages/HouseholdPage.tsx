@@ -27,6 +27,7 @@ export default function HouseholdPage({
   const [copied, setCopied] = useState(false)
   const [copyError, setCopyError] = useState<string | null>(null)
   const [leaving, setLeaving] = useState(false)
+  const [leaveConfirm, setLeaveConfirm] = useState(false)
 
   useEffect(() => {
     apiHouseholdsCurrentRetrieve()
@@ -55,8 +56,11 @@ export default function HouseholdPage({
     }
   }
 
-  async function handleLeave() {
-    if (!confirm('Are you sure you want to leave this household?')) return
+  function handleLeave() {
+    setLeaveConfirm(true)
+  }
+
+  async function doLeave() {
     setLeaving(true)
     try {
       const res = await apiHouseholdsLeaveCreate()
@@ -64,12 +68,13 @@ export default function HouseholdPage({
         setHousehold(null)
         onHouseholdLeft?.()
       } else {
-        alert('Failed to leave household.')
+        setError('Failed to leave household.')
       }
     } catch {
-      alert('Failed to leave household.')
+      setError('Failed to leave household.')
     } finally {
       setLeaving(false)
+      setLeaveConfirm(false)
     }
   }
 
@@ -192,27 +197,21 @@ export default function HouseholdPage({
                   This code is permanent and unique for your household. Share it
                   to invite your roommates.
                 </p>
-                <div className="bg-[#fffef7] border border-[#d8d8bd] rounded-[11px] px-[18px] py-[14px] flex items-center justify-between mb-[16px]">
+                <div className="bg-[#fffef7] border border-[#d8d8bd] rounded-[11px] px-[18px] py-[14px] flex items-center justify-between">
                   <span className="text-[#0b0a0f] text-[21px] tracking-wide">
-                    {household.invite_code}
+                    {copied ? 'Copied!' : household.invite_code}
                   </span>
                   <button
                     onClick={handleCopy}
-                    className="text-[#0b0a0f] hover:opacity-60 transition-opacity"
-                    title="Copy"
+                    className="w-[36px] h-[36px] flex items-center justify-center bg-[#fdd329] rounded-[7px] hover:opacity-80 transition-opacity shrink-0"
+                    title="Copy invite code"
                   >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                     </svg>
                   </button>
                 </div>
-                <button
-                  onClick={handleCopy}
-                  className="bg-[#fdd329] rounded-[7px] px-[24px] py-[9px] text-[#0b0a0f] text-[16px] font-medium hover:opacity-80 transition-opacity"
-                >
-                  {copied ? 'COPIED!' : 'COPY CODE'}
-                </button>
                 {copyError && (
                   <p className="mt-[12px] text-[#cb322d] text-[14px]">
                     {copyError}
@@ -225,31 +224,6 @@ export default function HouseholdPage({
                 <h2 className="text-[#cb322d] text-[16px] font-medium mb-[16px]">
                   Leave household
                 </h2>
-                <div className="bg-[#fffef7] border border-[#d8bdbd] rounded-[7px] p-[16px] mb-[20px]">
-                  <div className="flex gap-[10px] items-start">
-                    <svg
-                      className="shrink-0 mt-[1px]"
-                      width="17"
-                      height="17"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#cb322d"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                      <line x1="12" y1="9" x2="12" y2="13" />
-                      <line x1="12" y1="17" x2="12.01" y2="17" />
-                    </svg>
-                    <p className="text-[#0b0a0f] text-[14px] leading-[19px]">
-                      If you leave, you will lose access to all household data.
-                      Chores assigned to you will become unassigned. If you are
-                      the last member, the household and its data will be
-                      permanently deleted.
-                    </p>
-                  </div>
-                </div>
                 <button
                   onClick={handleLeave}
                   disabled={leaving}
@@ -267,6 +241,80 @@ export default function HouseholdPage({
         © 2026 Bratiuk, Horalevych, Dvoilenko, Tsepkalo
       </footer>
 
+      {leaveConfirm && (
+        <LeaveConfirmModal
+          saving={leaving}
+          onCancel={() => setLeaveConfirm(false)}
+          onConfirm={doLeave}
+        />
+      )}
+    </div>
+  )
+}
+
+function LeaveConfirmModal({
+  saving,
+  onCancel,
+  onConfirm,
+}: {
+  saving: boolean
+  onCancel: () => void
+  onConfirm: () => void
+}) {
+  return (
+    <div
+      className="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="bg-[#fbf4f1] rounded-[11px] border border-[#d8bdbd] w-[420px] p-[28px]">
+        <div className="flex items-start gap-[14px] mb-[20px]">
+          <WarningIcon />
+          <div>
+            <h3 className="text-[#cb322d] text-[16px] font-semibold mb-[8px]">
+              Leave household
+            </h3>
+            <p className="text-[#0b0a0f] text-[14px]">
+              Are you sure you want to leave this household?
+            </p>
+            <p className="text-[#0b0a0f] text-[14px] mt-[8px] leading-[19px]">
+              If you leave, you will lose access to all household data. Chores
+              assigned to you will become unassigned. If you are the last member,
+              the household and its data will be permanently deleted.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-[12px]">
+          <button
+            type="button"
+            disabled={saving}
+            onClick={onCancel}
+            className="rounded-[7px] border border-[#d8bdbd] px-[20px] h-[38px] text-[#0b0a0f] text-[16px] font-medium hover:bg-[#f5eded] transition-colors disabled:opacity-50"
+          >
+            CANCEL
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={onConfirm}
+            className="bg-[#cb322d] rounded-[7px] px-[20px] h-[38px] text-[#f8eded] text-[16px] font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
+          >
+            {saving ? '...' : 'LEAVE'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function WarningIcon() {
+  return (
+    <div className="w-[45px] h-[45px] shrink-0 flex items-center justify-center rounded-full bg-[#cb322d]/10">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cb322d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
     </div>
   )
 }

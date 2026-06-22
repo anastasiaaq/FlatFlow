@@ -20,11 +20,15 @@ button {
 }
 
 button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible {
+a:focus-visible {
   outline: 3px solid #0b0a0f;
   outline-offset: 3px;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fdd329;
 }
 
 .page-shell {
@@ -194,6 +198,7 @@ textarea:focus-visible {
 .page-heading h1 {
   margin: 0;
   font-size: 32px;
+  font-weight: 600;
   line-height: 1.2;
 }
 
@@ -248,10 +253,16 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
   border: 4px solid #0b0a0f;
   border-radius: 50%;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 600;
+  line-height: 1;
+}
+
+.rule-card__number span {
+  transform: translateY(1px);
 }
 
 .rule-card__content h2 {
@@ -260,10 +271,17 @@ textarea:focus-visible {
   font-weight: 600;
 }
 
-.rule-card__content p,
+.rule-card__content p {
+  margin: 0;
+  font-size: 14px;
+}
+
 .rule-card__meta p {
   margin: 0;
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rule-card__meta {
@@ -310,10 +328,11 @@ textarea:focus-visible {
 .rule-form__header h2 {
   margin: 0;
   font-size: 16px;
+  font-weight: 600;
 }
 
 .rule-form__header span {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
 }
 
@@ -327,6 +346,11 @@ textarea:focus-visible {
   background: #fffef7;
   color: #0b0a0f;
   font-size: 12px;
+  font-weight: 400;
+}
+
+.rule-form textarea::placeholder {
+  font-weight: 400;
 }
 
 .rule-form__error,
@@ -711,6 +735,16 @@ textarea:focus-visible {
   padding: 19px 28px;
 }
 
+.issue-card--open {
+  border-color: #d8bdbd;
+  background: #fbf4f1;
+}
+
+.issue-card--resolved {
+  border-color: #bfd3ba;
+  background: #f2f8ef;
+}
+
 .issue-card--empty,
 .issues-message {
   color: #393939;
@@ -773,12 +807,24 @@ textarea:focus-visible {
 }
 
 .issue-status {
-  border: 0;
+  padding: 5px 14px;
+  border: 1px solid #0b0a0f;
+  border-radius: 7px;
   background: transparent;
   color: #0b0a0f;
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.issue-status:hover {
+  opacity: 0.7;
+}
+
+.issue-status:disabled {
+  cursor: default;
+  opacity: 0.55;
 }
 
 .issue-card__actions {
