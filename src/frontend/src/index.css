@@ -21,10 +21,13 @@ button {
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible,
 textarea:focus-visible {
   outline: 3px solid #0b0a0f;
   outline-offset: 3px;
+}
+
+input:focus-visible {
+  outline: none;
 }
 
 .page-shell {
@@ -257,6 +260,10 @@ textarea:focus-visible {
   line-height: 1;
 }
 
+.rule-card__number span {
+  transform: translateY(1px);
+}
+
 .rule-card__content h2 {
   margin: 0 0 16px;
   font-size: 16px;
@@ -319,11 +326,12 @@ textarea:focus-visible {
 
 .rule-form__header h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .rule-form__header span {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
 }
 
@@ -726,6 +734,16 @@ textarea:focus-visible {
   padding: 19px 28px;
 }
 
+.issue-card--open {
+  border-color: #d8bdbd;
+  background: #fbf4f1;
+}
+
+.issue-card--resolved {
+  border-color: #bfd3ba;
+  background: #f2f8ef;
+}
+
 .issue-card--empty,
 .issues-message {
   color: #393939;
@@ -788,15 +806,18 @@ textarea:focus-visible {
 }
 
 .issue-status {
-  padding: 5px 14px;
+  padding: 0;
   border: 0;
-  border-radius: 7px;
-  background: #fdd329;
+  background: transparent;
   color: #0b0a0f;
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
+}
+
+.issue-status:hover {
+  text-decoration: underline;
 }
 
 .issue-status:disabled {

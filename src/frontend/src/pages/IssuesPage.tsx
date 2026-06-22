@@ -311,8 +311,12 @@ function IssueCard({
   onToggle: () => void
   toggleDisabled: boolean
 }) {
+  const isOpen = issue.status === 'OPEN'
+
   return (
-    <article className="issue-card">
+    <article
+      className={`issue-card ${isOpen ? 'issue-card--open' : 'issue-card--resolved'}`}
+    >
       <div className="issue-card__top">
         <h2>{issue.title}</h2>
         <button
@@ -321,7 +325,7 @@ function IssueCard({
           disabled={toggleDisabled}
           onClick={onToggle}
         >
-          {issue.status === 'OPEN' ? 'Resolve' : 'Reopen'}
+          {isOpen ? 'Resolve' : 'Reopen'}
         </button>
       </div>
       <p>{issue.description}</p>
